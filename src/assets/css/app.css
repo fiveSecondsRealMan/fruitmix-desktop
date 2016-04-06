@@ -1,0 +1,48 @@
+/**
+  * @name global style
+  * @author liuhua
+  * @datetime 2016-4-5
+*/
+
+@charset "utf-8";
+
+/******** 全站通用 *********/
+.clearfix {
+    display: block;
+}
+
+.clearfix:after {
+    display: block;
+    content: "\0020";
+    clear: both;
+    height: 0;
+    font-size: 0;
+    visibility: hidden;
+}
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+.visible {
+    visibility: visible !important;
+}
+
+body {
+    font-family: "Microsoft YaHei" !important;
+}
+
+a {
+    text-decoration: none !important;
+}
+
+input,
+textarea,
+select,
+button {
+    outline: none;
+}
