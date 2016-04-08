@@ -5,34 +5,72 @@
  * @author liuhua
  **/
 
-'use strict';
+ 'use strict';
 
 // require core module
-var React = require('react');
-var Base = require('../../utils/Base');
+import React, { findDOMNode, Component, PropTypes } from 'react';
+import Base from '../../utils/Base';
+import Store from '../../stores/store';
+import Action from'../../actions/action';
 
 // require common mixins
-var ImageModules = require('../Mixins/ImageModules'); 
+import ImageModules from '../Mixins/ImageModules'; 
 
 // define Index component
 var Index = React.createClass({
 
-    mixins: [ImageModules],
+	mixins: [ImageModules],
 
-    getInitialState() {
-        return {
-            
-        };
-    },
+	getInitialState() {
+		return {
+			items: Store.getState()
+		};
+	},
 
-    render: function () {
+	componentDidMount() {
+		var unsubscribe = Store.subscribe(this.onChange);
+	},
 
-        return (
-            <div className="inner">
-                Hello World
-            </div>
-        );
-    },
+	onChange() {
+		console.log(Store.getState());
+		this.setState({
+			items: Store.getState()
+		});
+	},
+
+	handleAdd() {
+		var value = findDOMNode(this.refs.todo).value;
+		Store.dispatch(Action.add(value));
+	},
+
+	handleDelete(index) {
+		Store.dispatch(Action.delete(index));
+	},
+
+	handleComplete(index) {
+		Store.dispatch(Action.complete(index));
+	},
+
+	render() {
+		var _this = this;
+		return (
+
+			<div className="inner">
+				<input ref="todo" type="text" placeholder="输入todo项" style={{marginRight:'10px'}} />
+				<button onClick={this.handleAdd}>点击添加111</button>
+				<ul>
+					{this.state.items.todos.map(function(item,index){
+						return <li>
+						<span>{item.text}&nbsp;&nbsp;&nbsp;</span>
+						<span onClick={_this.handleComplete.bind(_this,index)}>{item.completed==true?'completed':'not completed'}</span>
+						<span onClick={_this.handleDelete.bind(_this, index)}> delete</span>
+						</li>;
+					})}
+				</ul>
+			</div>
+
+			);
+	},
 
 });
 
