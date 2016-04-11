@@ -57,7 +57,7 @@ var Index = React.createClass({
 
 			<div className="inner">
 				<input ref="todo" type="text" placeholder="输入todo项" style={{marginRight:'10px'}} />
-				<button onClick={this.handleAdd}>点击添加111</button>
+				<button onClick={this.handleAdd}>点击添加1</button>
 				<ul>
 					{this.state.items.todos.map(function(item,index){
 						return <li>
