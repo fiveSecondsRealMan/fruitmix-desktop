@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "ME-PC",
   "private": true,
-    "main": "main.js",
+  "main": "src/app/app.js",
   "scripts": {
     "start": "electron main.js"
   },
@@ -31,6 +31,9 @@
     "babel-loader": "^5.0.0",
     "css-loader": "~0.9.0",
     "echarts": "^2.2.7-amd-beta2",
+    "electron": "^0.4.1",
+    "electron-packager": "^6.0.2",
+    "electron-prebuilt": "^0.36.12",
     "eslint": "^0.21.2",
     "eslint-loader": "^0.11.2",
     "eslint-plugin-react": "^2.4.0",
@@ -42,7 +45,9 @@
     "grunt-open": "~0.2.3",
     "grunt-webpack": "~1.0.8",
     "html-webpack-plugin": "^1.7.0",
+    "ipc": "0.0.1",
     "load-grunt-tasks": "~0.6.0",
+    "nconf": "^0.8.4",
     "react-hot-loader": "^1.0.7",
     "react-redux": "^4.4.1",
     "reflux": "^0.3.0",
@@ -50,10 +55,8 @@
     "url-loader": "~0.5.5",
     "webpack": "~1.10.0",
     "webpack-core": "^0.6.8",
-    "webpack-dev-server": "~1.10.0",
-    "electron-prebuilt": "^0.36.12"
+    "webpack-dev-server": "~1.10.0"
   },
-  "main": "src/app/app.js",
   "src": "src",
   "test": "test",
   "dist": "dist"
