@@ -103,8 +103,11 @@ module.exports = function (grunt) {
             return grunt.task.run(['build', 'open:dist', 'connect:dist']);
         }
 
+        // grunt.task.run([
+        //     'open:dev',
+        //     'webpack-dev-server'
+        // ]);
         grunt.task.run([
-            'open:dev',
             'webpack-dev-server'
         ]);
     });

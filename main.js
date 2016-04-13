@@ -18,11 +18,13 @@ app.on('ready', function() {
         frame: false,
         height: 700,
         resizable: false,
-        width: 368
+        width: 968
     });
 
-    // mainWindow.loadUrl('file://' + __dirname + '/app/index.html');
-    mainWindow.loadURL('http://localhost:8000/webpack-dev-server/');
+    mainWindow.webContents.openDevTools();
+
+    // mainWindow.loadUrl('file://' + __dirname + '/src/index.html');
+    mainWindow.loadURL('http://localhost:8000');
     setGlobalShortcuts();
 });
 
@@ -42,7 +44,6 @@ function setGlobalShortcuts() {
 }
 
 ipc.on('close-main-window', function () {
-    console.log('111111');
     app.quit();
 });
 
@@ -53,12 +54,15 @@ ipc.on('open-settings-window', function () {
 
     settingsWindow = new BrowserWindow({
         frame: false,
-        height: 200,
+        height: 600,
         resizable: false,
-        width: 200
+        width: 900
     });
 
-    settingsWindow.loadUrl('file://' + __dirname + '/app/settings.html');
+    settingsWindow.webContents.openDevTools();
+
+    // settingsWindow.loadUrl('file://' + __dirname + '/app/settings.html');
+    settingsWindow.loadUrl('http://localhost:8000/#/settings');
 
     settingsWindow.on('closed', function () {
         settingsWindow = null;

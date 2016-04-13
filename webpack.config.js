@@ -57,6 +57,10 @@ module.exports = {
         ]
     },
 
+    externals : {
+        ipc: 'ipc'
+    },
+
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new HtmlWebpackPlugin({template: 'src/index.html'})

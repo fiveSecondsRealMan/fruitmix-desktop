@@ -16,10 +16,6 @@ import Base from '../../utils/Base';
 // require common mixins
 import ImageModules from '../Mixins/ImageModules'; 
 
-//import ipc
-// import {ipc} from 'electron';
-// var ipc = require("ipc");
-
 //import CSS
 import css  from  '../../../assets/css/index'
 
@@ -61,14 +57,20 @@ var Index = React.createClass({
 
 	//close window
 	closeWindow() {
-		close();
+		console.log(ipc);
+		ipc.send('close-main-window');
+	},
+
+	openSetting() {
+		openSetting();
 	},
 
 	render() {
 		var _this = this;
 		return (
 			<div className='frame'>
-				<div className="settings">Settings</div>
+			12345678111222
+				<div className="settings" onClick={this.openSetting}>Settings</div>
 				<div className="close" onClick={this.closeWindow}>Close</div>
 				<div id="main" className="container-fluid">
 				    <div className="row">

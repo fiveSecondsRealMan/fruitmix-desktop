@@ -30,6 +30,7 @@ require('../assets/css/app.css');
  */
 var Index = require('./components/Index/Index');// 首页
 var NoFondPath = require('./components/404');//404
+var Settings = require('./components/Setting/Setting');//settings
 
 /**
  * App组件
@@ -60,6 +61,7 @@ var routes = (
     <Route handler={App}>
 
         <Route name="index" path="/" handler={Index}/>
+        <Route name="setting" path="/settings" handler={Settings}/>
         <Route name="404" path="/404" handler={NoFondPath}/>
 
         <DefaultRoute handler={Index}/>
