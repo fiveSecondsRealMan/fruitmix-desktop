@@ -29,6 +29,7 @@
     "babel": "^5.0.0",
     "babel-core": "^5.8.22",
     "babel-loader": "^5.0.0",
+    "copy-webpack-plugin": "^1.1.1",
     "css-loader": "~0.9.0",
     "echarts": "^2.2.7-amd-beta2",
     "electron-packager": "^6.0.2",

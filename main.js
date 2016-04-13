@@ -23,8 +23,8 @@ app.on('ready', function() {
 
     mainWindow.webContents.openDevTools();
 
-    // mainWindow.loadUrl('file://' + __dirname + '/src/index.html');
-    mainWindow.loadURL('http://localhost:8000');
+    // mainWindow.loadUrl('file://' + __dirname + '/ele/index.html');
+    mainWindow.loadUrl('file://' + __dirname + '/dist/index.html');
     setGlobalShortcuts();
 });
 

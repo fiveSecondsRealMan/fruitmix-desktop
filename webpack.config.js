@@ -5,21 +5,26 @@
 
 'use strict';
 
+var path = require('path');
 var webpack = require('webpack');
-var HtmlWebpackPlugin=require("html-webpack-plugin")
+var HtmlWebpackPlugin=require("html-webpack-plugin");
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+var ELE_PATH = path.resolve(__dirname, 'ele');
+var SRC_PATH = path.resolve(__dirname, 'src');
 
 module.exports = {
 
     output: {
+        path: 'ele',
         filename  : 'bundle.js'
     },
 
     cache  : true,
     debug  : true,
-    devtool: 'eval-source-map',
+    target: 'electron',
 
     entry: [
-        'webpack/hot/only-dev-server',
+        'webpack/hot/poll?1000',
         './src/app/app.js'
     ],
 
@@ -33,13 +38,6 @@ module.exports = {
     },
 
     module: {
-        //preLoaders: [
-        //    {
-        //        test   : /\.(js|jsx)$/,
-        //        exclude: /node_modules/,
-        //        loader : 'eslint-loader'
-        //    }
-        //],
 
         loaders: [
 
@@ -57,13 +55,12 @@ module.exports = {
         ]
     },
 
-    externals : {
-        ipc: 'ipc'
-    },
-
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
-        new HtmlWebpackPlugin({template: 'src/index.html'})
+        new HtmlWebpackPlugin({template: 'src/index.html'}),
+        new CopyWebpackPlugin([
+            { from:  path.resolve(SRC_PATH,'electron-index.js'), to: 'electron-index.js' }
+        ])
     ]
 
 };

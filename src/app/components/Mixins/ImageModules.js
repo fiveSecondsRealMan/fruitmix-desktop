@@ -11,7 +11,9 @@ module.exports = {
     
     defineImageModules() {
         return {
-            'not-found': require('../../../assets/images/404/01.png')
+            'not-found': require('../../../assets/images/404/01.png'),
+            'speaker':require('../../../assets/images/index/speaker.png'),
+            'logo':require('../../../assets/images/index/logo.png')
         };
     },
     

@@ -6,7 +6,8 @@
 'use strict';
 
 var webpack = require('webpack');
-var HtmlWebpackPlugin=require("html-webpack-plugin")
+var HtmlWebpackPlugin=require("html-webpack-plugin");
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
 
@@ -35,7 +36,10 @@ module.exports = {
         new webpack.optimize.OccurenceOrderPlugin(),
         new webpack.optimize.AggressiveMergingPlugin(),
         new webpack.NoErrorsPlugin(),
-        new HtmlWebpackPlugin({template: 'src/index.html'})
+        new HtmlWebpackPlugin({template: 'src/index.html'}),
+        new CopyWebpackPlugin([
+            { from:  'src/electron-index.js', to: 'electron-index.js' }
+        ])
     ],
 
     resolve: {

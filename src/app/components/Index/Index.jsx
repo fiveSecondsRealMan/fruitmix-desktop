@@ -46,7 +46,8 @@ var Index = React.createClass({
 	},
 
 	prepareButton(buttonEl, soundName) {
- 		buttonEl.querySelector('span').style.backgroundImage = 'url("../../assets/images/index/icons/' + soundName + '.png")';
+ 		// buttonEl.querySelector('span').style.backgroundImage = 'url("../../assets/images/index/icons/' + soundName + '.png")';
+ 		buttonEl.querySelector('span').style.backgroundImage = this.defineImageModules()[soundName];
 
     		var audio = new Audio(__dirname + 'assets/wav/' + soundName + '.wav');
     		buttonEl.addEventListener('click', function () {
@@ -69,17 +70,17 @@ var Index = React.createClass({
 		var _this = this;
 		return (
 			<div className='frame'>
-			12345678111222
+			111333aaa
 				<div className="settings" onClick={this.openSetting}>Settings</div>
 				<div className="close" onClick={this.closeWindow}>Close</div>
 				<div id="main" className="container-fluid">
 				    <div className="row">
 				        <div className="col-xs-12">
 				            <div className="speaker">
-				                <img src="../../assets/images/index/speaker.png"/>
+				                <img src={this.defineImageModules()['speaker']}/>
 				            </div>
 				            <h1>
-				                <img src="../../assets/images/index/logo.png"/>
+				                <img src={this.defineImageModules()['logo']}/>
 				            </h1>
 				        </div>
 				    </div>

@@ -102,6 +102,10 @@ body {
     -webkit-app-region: no-drag;
 }
 
+.button-sound[data-sound="money"]>span{
+  background-image: url('../images/index/icons/money.png');
+}
+
 .settings {
     background: transparent url('../images/index/settings.png') no-repeat 4px 4px;
     background-size: 24px 24px;
