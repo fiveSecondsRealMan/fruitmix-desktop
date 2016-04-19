@@ -37,7 +37,7 @@
 ### 常用操作及其命令
 * 安装npm相应包 : npm install , npm install --save name
 * 编译项目 : grunt build
-* 开发项目 : grunt serve
+* 开发项目 : sudo webpack --watch   新开终端 npm start
 * 查看生产环境项目 : grunt connect
 
 
