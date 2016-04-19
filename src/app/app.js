@@ -8,13 +8,20 @@
 /**
  * 引入 第三方lib
  **/
-var React = require('react');
-var Router = require('react-router');
-var Route = Router.Route;
-var DefaultRoute = Router.DefaultRoute;
-var RouteHandler = Router.RouteHandler;
-var Redirect = Router.Redirect;
-var NotFoundRoute = Router.NotFoundRoute;
+// var React = require('react');
+// var Router = require('react-router');
+// var Route = Router.Route;
+// var DefaultRoute = Router.DefaultRoute;
+// var RouteHandler = Router.RouteHandler;
+// var Redirect = Router.Redirect;
+// var NotFoundRoute = Router.NotFoundRoute;
+import React from 'react'
+import { render } from 'react-dom'
+import { Router, Route, Link, hashHistory, IndexRoute} from 'react-router'
+
+import injectTapEventPlugin from 'react-tap-event-plugin';
+injectTapEventPlugin();
+
 
 // 全局引入jQuery(因为一些jQuery插件写法不好, 以后可以优化)
 global.$ = global.jQuery = global.jQuery || require('jquery');
@@ -30,26 +37,31 @@ require('../assets/css/app.css');
  */
 var Index = require('./components/Index/Index');// 首页
 var NoFondPath = require('./components/404');//404
-var Settings = require('./components/Setting/Setting');//settings
+var Card = require('./components/Card/Card');//Card
+var Dialog = require('./components/Dialog/Dialog');//Card
+var Grid = require('./components/Grid/Grid');//Grid
+var Nav = require('./components/Nav/Nav');//Nav
 
 /**
  * App组件
  */
 var App = React.createClass({
 
-    mixins: [Router.State],
-
     render: function () {
-
-        var path = this.getPath();
 
         return (
             <div className="app">
+            <header>
+	            <ul style={{overflow: 'hidden'}}>
+		            <li style={{float:'left',marginRight: '50px'}}><Link to="/index" activeClassName="active" activeStyle={{color: '#c00'}}>index</Link></li>
+		            <li style={{float:'left',marginRight: '50px'}}><Link to="/card" activeClassName="active" activeStyle={{color: '#c00'}}>card</Link></li>
+                         <li style={{float:'left',marginRight: '50px'}}><Link to="/dialog" activeClassName="active" activeStyle={{color: '#c00'}}>dialog</Link></li>
+                         <li style={{float:'left',marginRight: '50px'}}><Link to="/grid" activeClassName="active" activeStyle={{color: '#c00'}}>grid</Link></li>
+                         <li style={{float:'left',marginRight: '50px'}}><Link to="/nav" activeClassName="active" activeStyle={{color: '#c00'}}>nav</Link></li>
+	            </ul>
+            </header>
 
-
-                <div>
-                    <RouteHandler/>
-                </div>
+                    {this.props.children}
             </div>
         );
     },
@@ -58,22 +70,21 @@ var App = React.createClass({
 
 // 路由器
 var routes = (
-    <Route handler={App}>
-
-        <Route name="index" path="/" handler={Index}/>
-        <Route name="setting" path="/settings" handler={Settings}/>
-        <Route name="404" path="/404" handler={NoFondPath}/>
-
-        <DefaultRoute handler={Index}/>
-        /* 404 */
-        <NotFoundRoute handler={NoFondPath}/>
-    </Route>
+      <Router history={hashHistory}>
+      <Route path="/" component={App}>
+          <Route path="index" component={Index}/>
+          <Route path="card" component={Card}/>
+          <Route path='dialog' component={Dialog}/>
+          <Route path='grid' component={Grid}/>
+          <Route path='nav' component={Nav}/>
+          <Route path="*" component={NoFondPath}/>
+          <IndexRoute component={Index}/>
+        </Route>
+  </Router>
 );
 
 // 挂载节点
 var appMountElement = document.getElementById('app');
 
 // 渲染
-Router.run(routes, Router.HashLocation, (Root) => {
-    React.render(<Root/>, appMountElement);
-});
+render(routes,appMountElement);

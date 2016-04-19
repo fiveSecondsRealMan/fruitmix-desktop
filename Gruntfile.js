@@ -8,47 +8,37 @@
 var mountFolder = function (connect, dir) {
     return connect.static(require('path').resolve(dir));
 };
-
 var webpackDistConfig = require('./webpack.dist.config.js'),
     webpackDevConfig = require('./webpack.config.js');
-
 module.exports = function (grunt) {
     // Let *load-grunt-tasks* require everything
     require('load-grunt-tasks')(grunt);
-
     // Read configuration from package.json
     var pkgConfig = grunt.file.readJSON('package.json');
-
     grunt.initConfig({
         pkg: pkgConfig,
-
         webpack: {
             options: webpackDistConfig,
             dist   : {
                 cache: false
             }
         },
-
         'webpack-dev-server': {
             options: {
                 hot        : true,
                 port       : 8000,
                 webpack    : webpackDevConfig,
-
                 contentBase: './<%= pkg.src %>/'
             },
-
             start: {
                 keepAlive: true
             }
         },
-
         connect: {
             options: {
                 hostname: 'localhost',
                 port    : 8000
             },
-
             dist: {
                 options: {
                     keepalive : true,
@@ -61,7 +51,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-
         open: {
             options: {
                 delay: 500
@@ -73,7 +62,6 @@ module.exports = function (grunt) {
                 path: 'http://localhost:<%= connect.options.port %>/'
             }
         },
-
         htmlmin: {
             dist: {
                 options: {
@@ -85,7 +73,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-
         clean: {
             dist: {
                 files: [{
@@ -97,22 +84,15 @@ module.exports = function (grunt) {
             }
         }
     });
-
     grunt.registerTask('serve', function (target) {
         if (target === 'dist') {
             return grunt.task.run(['build', 'open:dist', 'connect:dist']);
         }
-
-        // grunt.task.run([
-        //     'open:dev',
-        //     'webpack-dev-server'
-        // ]);
         grunt.task.run([
+            // 'open:dev',
             'webpack-dev-server'
         ]);
     });
-
     grunt.registerTask('build', ['clean', 'webpack', 'htmlmin']);
-
     grunt.registerTask('default', []);
 };

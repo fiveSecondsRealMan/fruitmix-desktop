@@ -16,15 +16,15 @@ app.on('ready', function() {
 
     mainWindow = new BrowserWindow({
         frame: false,
-        height: 700,
+        height: 768,
         resizable: false,
-        width: 968
+        width: 1366
     });
 
     mainWindow.webContents.openDevTools();
 
-    // mainWindow.loadUrl('file://' + __dirname + '/ele/index.html');
-    mainWindow.loadUrl('file://' + __dirname + '/dist/index.html');
+    mainWindow.loadUrl('file://' + __dirname + '/ele/index.html');
+    // mainWindow.loadUrl('file://' + __dirname + '/dist/index.html');
     setGlobalShortcuts();
 });
 
@@ -54,14 +54,12 @@ ipc.on('open-settings-window', function () {
 
     settingsWindow = new BrowserWindow({
         frame: false,
-        height: 600,
+        height: 768,
         resizable: false,
-        width: 900
+        width: 1366
     });
 
     settingsWindow.webContents.openDevTools();
-
-    // settingsWindow.loadUrl('file://' + __dirname + '/app/settings.html');
     settingsWindow.loadUrl('http://localhost:8000/#/settings');
 
     settingsWindow.on('closed', function () {

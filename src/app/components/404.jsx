@@ -8,7 +8,7 @@
 
 // require core module
 var React = require('react');
-
+import { Link } from 'react-router'
 var ImageModules = require('./Mixins/ImageModules');
 
 require('../../assets/css/404.css');
@@ -25,8 +25,9 @@ var NofondPage = React.createClass({
 					<div className="c1"><img src={ this.defineImageModules()['not-found'] } className="img1" /></div>
 					<h2>哎呀…您访问的页面不存在</h2>
 					<div className="c2">
-						<a href="#" className="re">返回</a>
-						<a href="#" className="home">网站首页</a>
+					<Link to="/index" activeClassName="active" activeStyle={{color: '#c00'}}>index</Link>
+						<a href="#/index" className="re">返回</a>
+						<a href="#/index" className="home">网站首页</a>
 						<a href="#" className="sr">搜索一下页面相关信息</a>
 					</div>
 					<div className="c3">

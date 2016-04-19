@@ -16,7 +16,8 @@ module.exports = {
 
     output: {
         path: 'ele',
-        filename  : 'bundle.js'
+        filename  : 'bundle.js',
+        hash: true
     },
 
     cache  : true,
@@ -25,6 +26,7 @@ module.exports = {
 
     entry: [
         'webpack/hot/poll?1000',
+        // 'webpack/hot/only-dev-server',
         './src/app/app.js'
     ],
 
