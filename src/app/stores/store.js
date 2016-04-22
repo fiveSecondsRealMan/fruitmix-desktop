@@ -1,50 +1,19 @@
 // reducers
+//import core module
+import { createStore, applyMiddleware } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+//import reducer
+import reducer from '../reducers/reducer';
+import createLogger from 'redux-logger';
 
-var Redux = require('redux');
-import _ from 'lodash';
-import { combineReducers, createStore } from 'redux';
+const loggerMiddleware = createLogger();
 
-const VisibilityFilters = {
-  SHOW_ALL: 'SHOW_ALL',
-  SHOW_COMPLETED: 'SHOW_COMPLETED',
-  SHOW_ACTIVE: 'SHOW_ACTIVE'
-};
+const createStoreWithMiddleware = applyMiddleware(
+	thunkMiddleware,
+	loggerMiddleware
+)(createStore);
 
-const { SHOW_ALL } = VisibilityFilters;
-
-var todos = function (state = [], action) {
-	switch(action.type) {
-		case 'ADD_TODO':
-			return [...state,{
-				text: action.text,
-				completed: false
-			}];
-		case 'DELETE_TODO':
-			var s = _.cloneDeep(state);
-			s.splice(action.index,1);
-			return s;
-		case 'COMPLETE_TODO':
-			var s = _.cloneDeep(state);
-			s[action.index].completed = !s[action.index].completed; 
-			return s;
-		default:
-			return state;
-	}
+export default function configureStore(initialState) {
+	return createStoreWithMiddleware(reducer, initialState);
 }
 
-var visibilityFilter = function(state = SHOW_ALL, action) {
-	switch(action.type) {
-		case 'SET_VISIBILITY_FILTER':
-			return action.filter;
-		default:
-			return state;
-	}	
-}
-
-var todoApp = combineReducers({
-	todos,visibilityFilter
-});
-
-var store = createStore(todoApp);
-
-module.exports = store;

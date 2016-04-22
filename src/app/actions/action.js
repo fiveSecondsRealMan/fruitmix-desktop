@@ -16,6 +16,20 @@ var actions = {
 			type: 'COMPLETE_TODO',
 			index: index
 		}
+	},
+	login: (username,password) => {
+		console.log('lo');
+		return dispatch => {
+			fmacloud.User.logIn(username,password, {
+				success(data) {
+					dispatch({type:'LOGININ'})
+				},
+				error(err) {
+					console.log();
+				}
+			});	
+		}
+		
 	}
 }
 

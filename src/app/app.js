@@ -1,90 +1,93 @@
-/**
- * @module app
- * @description app main module
- * @time 2016-04-05 12:00
- * @author liuhua
- **/
-
-/**
- * 引入 第三方lib
- **/
-// var React = require('react');
-// var Router = require('react-router');
-// var Route = Router.Route;
-// var DefaultRoute = Router.DefaultRoute;
-// var RouteHandler = Router.RouteHandler;
-// var Redirect = Router.Redirect;
-// var NotFoundRoute = Router.NotFoundRoute;
-import React from 'react'
-import { render } from 'react-dom'
-import { Router, Route, Link, hashHistory, IndexRoute} from 'react-router'
-
+  /**
+   * @module app
+   * @description app main module
+   * @time 2016-04-05 12:00
+   * @author liuhua
+   **/
+   
+//import core module
+import React from 'react';
+import { render } from 'react-dom';
+import { Router, Route, Link, hashHistory, IndexRoute} from 'react-router';
+import CSSTransition from 'react-addons-css-transition-group';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
-
-
-// 全局引入jQuery(因为一些jQuery插件写法不好, 以后可以优化)
+// global import jQuery
 global.$ = global.jQuery = global.jQuery || require('jquery');
-
-/**
- * 引入 assets
- */
+//import css
 require('../assets/css/app.css');
+//import component
+import Index  from'./components/Index/Index';// 首页
+import NoFondPath  from'./components/404';//404
+import Card  from'./components/Card/Card';//Card
+import Dialog  from'./components/Dialog/Dialog';//Card
+import Grid  from'./components/Grid/Grid';//Grid
+import Nav  from'./components/Nav/Nav';//Nav
 
+//import store
+import configureStore from './stores/store';
+const store = configureStore();
+window.store = store;
 
-/**
- * 引入自定义 components
- */
-var Index = require('./components/Index/Index');// 首页
-var NoFondPath = require('./components/404');//404
-var Card = require('./components/Card/Card');//Card
-var Dialog = require('./components/Dialog/Dialog');//Card
-var Grid = require('./components/Grid/Grid');//Grid
-var Nav = require('./components/Nav/Nav');//Nav
-
-/**
- * App组件
- */
+//APP component
 var App = React.createClass({
-
-    render: function () {
-
-        return (
-            <div className="app">
-            <header>
-	            <ul style={{overflow: 'hidden'}}>
-		            <li style={{float:'left',marginRight: '50px'}}><Link to="/index" activeClassName="active" activeStyle={{color: '#c00'}}>index</Link></li>
-		            <li style={{float:'left',marginRight: '50px'}}><Link to="/card" activeClassName="active" activeStyle={{color: '#c00'}}>card</Link></li>
-                         <li style={{float:'left',marginRight: '50px'}}><Link to="/dialog" activeClassName="active" activeStyle={{color: '#c00'}}>dialog</Link></li>
-                         <li style={{float:'left',marginRight: '50px'}}><Link to="/grid" activeClassName="active" activeStyle={{color: '#c00'}}>grid</Link></li>
-                         <li style={{float:'left',marginRight: '50px'}}><Link to="/nav" activeClassName="active" activeStyle={{color: '#c00'}}>nav</Link></li>
-	            </ul>
-            </header>
-
-                    {this.props.children}
-            </div>
-        );
-    },
-
+	render() {
+		return(
+			<div className="app">
+				<header>
+					<li style={{float:'left',marginRight:'50px'}}>
+						<Link to="/index" activeClassName="active" activeStyle={{color:'#c00'}}>index</Link>
+					</li>
+					<li style={{float:'left',marginRight:'50px'}}>
+						<Link to="/card" activeClassName="active" activeStyle={{color:'#c00'}}>card</Link>
+					</li>
+					<li style={{float:'left',marginRight:'50px'}}>
+						<Link to="/dialog" activeClassName="active" activeStyle={{color:'#c00'}}>dialog</Link>
+					</li>
+					<li style={{float:'left',marginRight:'50px'}}>
+						<Link to="/grid" activeClassName="active" activeStyle={{color:'#c00'}}>grid</Link>
+					</li>
+					<li style={{float:'left',marginRight:'50px'}}>
+						<Link to="/nav" activeClassName="active" activeStyle={{color:'#c00'}}>nav</Link>
+					</li>
+					<div>{window.location.href}</div>
+				</header>
+				<CSSTransition transitionName='login' transitionEnterTimeout={2000} transitionLeaveTimeout={1000}>
+					{this.props.children}
+				</CSSTransition>
+			</div>
+			)
+	},
 });
-
-// 路由器
+//router
 var routes = (
-      <Router history={hashHistory}>
-      <Route path="/" component={App}>
-          <Route path="index" component={Index}/>
-          <Route path="card" component={Card}/>
-          <Route path='dialog' component={Dialog}/>
-          <Route path='grid' component={Grid}/>
-          <Route path='nav' component={Nav}/>
-          <Route path="*" component={NoFondPath}/>
-          <IndexRoute component={Index}/>
-        </Route>
-  </Router>
-);
-
-// 挂载节点
+	<Router history={hashHistory}>
+		<Route path="/" component={App}>
+	    		<Route path="index" component={Index}/>
+	    		<Route path="card" component={Card}/>
+	   		<Route path='dialog' component={Dialog}/>
+	    		<Route path='grid' component={Grid}/>
+	    		<Route path='nav' component={Nav}/>
+	    		<Route path="*" component={NoFondPath}/>
+	    		<IndexRoute component={Index}/>
+	    	</Route>
+	</Router>
+	);
+// define dom node
 var appMountElement = document.getElementById('app');
+//define render function
+var reRender = () =>{
+	console.log('render');
+	render(routes,appMountElement);
+};
+//render
+reRender();
 
-// 渲染
-render(routes,appMountElement);
+store.subscribe(reRender);
+
+
+
+
+
+
+
