@@ -8,14 +8,18 @@
 //import core module
 import React from 'react';
 import { render } from 'react-dom';
+import { Provider } from 'react-redux'
 import { Router, Route, Link, hashHistory, IndexRoute} from 'react-router';
 import CSSTransition from 'react-addons-css-transition-group';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
+
 // global import jQuery
 global.$ = global.jQuery = global.jQuery || require('jquery');
+
 //import css
 require('../assets/css/app.css');
+
 //import component
 import Index  from'./components/Index/Index';// 首页
 import NoFondPath  from'./components/404';//404
@@ -27,7 +31,6 @@ import Nav  from'./components/Nav/Nav';//Nav
 //import store
 import configureStore from './stores/store';
 const store = configureStore();
-window.store = store;
 
 //APP component
 var App = React.createClass({
@@ -59,31 +62,36 @@ var App = React.createClass({
 			)
 	},
 });
+
 //router
 var routes = (
-	<Router history={hashHistory}>
-		<Route path="/" component={App}>
-	    		<Route path="index" component={Index}/>
-	    		<Route path="card" component={Card}/>
-	   		<Route path='dialog' component={Dialog}/>
-	    		<Route path='grid' component={Grid}/>
-	    		<Route path='nav' component={Nav}/>
-	    		<Route path="*" component={NoFondPath}/>
-	    		<IndexRoute component={Index}/>
-	    	</Route>
-	</Router>
+	<Provider store={store}>
+		<Router history={hashHistory}>
+			<Route path="/" component={App}>
+		    		<Route path="index" component={Index}/>
+		    		<Route path="card" component={Card}/>
+		   		<Route path='dialog' component={Dialog}/>
+		    		<Route path='grid' component={Grid}/>
+		    		<Route path='nav' component={Nav}/>
+		    		<Route path="*" component={NoFondPath}/>
+		    		<IndexRoute component={Index}/>
+		    	</Route>
+		</Router>
+	</Provider>
 	);
+
 // define dom node
 var appMountElement = document.getElementById('app');
+
 //define render function
 var reRender = () =>{
-	console.log('render');
 	render(routes,appMountElement);
 };
+
 //render
 reRender();
 
-store.subscribe(reRender);
+// store.subscribe(reRender);
 
 
 

@@ -1,35 +1,16 @@
 var actions = {
-	add : function (text) {
-		return {
-			type: 'ADD_TODO',
-			text: text 
-		}
-	},
-	delete : function (index) {
-		return {
-			type: 'DELETE_TODO',
-			index: index
-		}
-	},
-	complete: function(index) {
-		return {
-			type: 'COMPLETE_TODO',
-			index: index
-		}
-	},
 	login: (username,password) => {
-		console.log('lo');
 		return dispatch => {
+			dispatch({type:'LOGIN',username: username, password: password})
 			fmacloud.User.logIn(username,password, {
 				success(data) {
-					dispatch({type:'LOGININ'})
+					dispatch({type:'LOGGEDIN',username:username,password:password})
 				},
 				error(err) {
 					console.log();
 				}
 			});	
 		}
-		
 	}
 }
 
