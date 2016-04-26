@@ -31,9 +31,16 @@
 .visible {
     visibility: visible !important;
 }
-
+html {
+    width:100%;
+    height:100%;
+}
 body {
     font-family: "Microsoft YaHei" !important;
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
 }
 
 a {
@@ -45,4 +52,34 @@ textarea,
 select,
 button {
     outline: none;
+    margin:0;
+    padding: 0;
+    border: 0;
+}
+
+.login-leave {
+  opacity: 1;
+  transition: opacity .5s ease-in;
+}
+
+.login-leave.login-leave-active {
+  opacity: 0.01;
+}
+
+.login-enter {
+  opacity: 0.01;
+  transition: opacity .5s ease-in;
+}
+
+.login-enter.login-enter-active {
+  opacity: 1;
+}
+
+#app {
+  width:100%;
+  height:100%;
+}
+.app {
+  width:100%;
+  height:100%;
 }

@@ -21,12 +21,10 @@ global.$ = global.jQuery = global.jQuery || require('jquery');
 require('../assets/css/app.css');
 
 //import component
-import Index  from'./components/Index/Index';// 首页
+import Login  from'./components/login/Login';// login
 import NoFondPath  from'./components/404';//404
-import Card  from'./components/Card/Card';//Card
-import Dialog  from'./components/Dialog/Dialog';//Card
-import Grid  from'./components/Grid/Grid';//Grid
-import Nav  from'./components/Nav/Nav';//Nav
+import Main from './components/main/Main';//main
+
 
 //import store
 import configureStore from './stores/store';
@@ -37,27 +35,17 @@ var App = React.createClass({
 	render() {
 		return(
 			<div className="app">
+				{this.props.children}
 				<header>
 					<li style={{float:'left',marginRight:'50px'}}>
-						<Link to="/index" activeClassName="active" activeStyle={{color:'#c00'}}>index</Link>
+						<Link to="/login" activeClassName="active" activeStyle={{color:'#c00'}}>login</Link>
 					</li>
 					<li style={{float:'left',marginRight:'50px'}}>
-						<Link to="/card" activeClassName="active" activeStyle={{color:'#c00'}}>card</Link>
-					</li>
-					<li style={{float:'left',marginRight:'50px'}}>
-						<Link to="/dialog" activeClassName="active" activeStyle={{color:'#c00'}}>dialog</Link>
-					</li>
-					<li style={{float:'left',marginRight:'50px'}}>
-						<Link to="/grid" activeClassName="active" activeStyle={{color:'#c00'}}>grid</Link>
-					</li>
-					<li style={{float:'left',marginRight:'50px'}}>
-						<Link to="/nav" activeClassName="active" activeStyle={{color:'#c00'}}>nav</Link>
+						<Link to="/main" activeClassName="active" activeStyle={{color:'#c00'}}>main</Link>
 					</li>
 					<div>{window.location.href}</div>
 				</header>
-				<CSSTransition transitionName='login' transitionEnterTimeout={2000} transitionLeaveTimeout={1000}>
-					{this.props.children}
-				</CSSTransition>
+					
 			</div>
 			)
 	},
@@ -68,13 +56,10 @@ var routes = (
 	<Provider store={store}>
 		<Router history={hashHistory}>
 			<Route path="/" component={App}>
-		    		<Route path="index" component={Index}/>
-		    		<Route path="card" component={Card}/>
-		   		<Route path='dialog' component={Dialog}/>
-		    		<Route path='grid' component={Grid}/>
-		    		<Route path='nav' component={Nav}/>
+		    		<Route path="login" component={Login}/>
+		    		<Route path='main' component={Main}/>
 		    		<Route path="*" component={NoFondPath}/>
-		    		<IndexRoute component={Index}/>
+		    		<IndexRoute component={Login}/>
 		    	</Route>
 		</Router>
 	</Provider>
@@ -84,14 +69,13 @@ var routes = (
 var appMountElement = document.getElementById('app');
 
 //define render function
-var reRender = () =>{
+var Render = () =>{
 	render(routes,appMountElement);
 };
 
 //render
-reRender();
+Render();
 
-// store.subscribe(reRender);
 
 
 
