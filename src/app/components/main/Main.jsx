@@ -44,6 +44,10 @@ class Main extends React.Component {
 					<span>userName</span></div>
 				}>
 				</AppBar>
+				<div className="content">
+					<div className="left-nav"></div>
+					<div className="content"></div>
+				</div>
 			</div>
 			);
 	}
