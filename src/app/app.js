@@ -36,7 +36,7 @@ var App = React.createClass({
 		return(
 			<div className="app">
 				{this.props.children}
-				<header>
+				{/*<header>
 					<li style={{float:'left',marginRight:'50px'}}>
 						<Link to="/login" activeClassName="active" activeStyle={{color:'#c00'}}>login</Link>
 					</li>
@@ -44,7 +44,7 @@ var App = React.createClass({
 						<Link to="/main" activeClassName="active" activeStyle={{color:'#c00'}}>main</Link>
 					</li>
 					<div>{window.location.href}</div>
-				</header>
+				</header>*/}
 					
 			</div>
 			)

@@ -10,15 +10,19 @@
  import React, { findDOMNode, Component, PropTypes } from 'react';
  import { connect, bindActionCreators } from 'react-redux'
 
-import Login from'../../actions/login';
-
 //require material
-import { AppBar, TextField } from 'material-ui'
+import { AppBar, TextField, Drawer, Paper } from 'material-ui';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
+import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
+
+//import Action
+import Action from '../../actions/action'
 
 //import CSS
 import css  from  '../../../assets/css/main';
+
+//import component
+import LeftNav from './LeftNav';
 
 // require common mixins
 import ImageModules from '../Mixins/ImageModules'; 
@@ -27,8 +31,12 @@ class Main extends React.Component {
 	mixins: [ImageModules]
 
 	getChildContext() {
-		const muiTheme = getMuiTheme(darkBaseTheme);
-		return {muiTheme};
+		const muiTheme = getMuiTheme(lightBaseTheme);
+		return {muiTheme}; 
+	}
+
+	leftNavClick() {
+		this.props.dispatch(Action.navToggle());
 	}
 
 	render() {
@@ -42,12 +50,14 @@ class Main extends React.Component {
 					      className='search-input'
 					/>
 					<span>userName</span></div>
-				}>
+				}
+				onLeftIconButtonTouchTap={this.leftNavClick.bind(this)}
+				>
 				</AppBar>
-				<div className="content">
-					<div className="left-nav"></div>
-					<div className="content"></div>
-				</div>
+				<Drawer width={200} open={this.props.navigation.menu} className='left-nav'>
+					<LeftNav nav={this.props.navigation}/>
+				</Drawer>
+				<Paper className="content-container"></Paper>
 			</div>
 			);
 	}
@@ -59,7 +69,8 @@ Main.childContextTypes = {
 
 function mapStateToProps (state) {
 	return {
-		
+		navigation: state.navigation,
+		login: state.login
 	}
 }
 

@@ -18,6 +18,18 @@ var actions = {
 			type: 'LOGGEDIN'
 		}
 	},
+
+	navToggle: () => {
+		return {
+			type: 'NAV_MENU_TOGGLE'
+		}
+	},
+
+	changeSelectedNavItem: (name) => {
+		return {
+			type: 'NAV_SELECT'
+		}
+	}
 }
 
 module.exports = actions;

@@ -10,7 +10,7 @@ import React, { findDOMNode, Component, PropTypes } from 'react';
 import { connect, bindActionCreators } from 'react-redux'
 import Base from '../../utils/Base';
 // require action
-import Login from'../../actions/login';
+import Login from'../../actions/action';
 //require material
 import { Paper, TextField, FlatButton, CircularProgress } from 'material-ui'
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
@@ -50,7 +50,7 @@ class Index extends React.Component {
 		})
 		setTimeout( () => {
 			this.props.dispatch(Login.login());
-		},2000);
+		},200);
 	}
 
 	render() {

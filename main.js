@@ -16,9 +16,9 @@ app.on('ready', function() {
 
     mainWindow = new BrowserWindow({
         frame: false,
-        height: 768,
+        height: 968,
         resizable: false,
-        width: 1366
+        width: 1666
     });
 
     mainWindow.webContents.openDevTools();

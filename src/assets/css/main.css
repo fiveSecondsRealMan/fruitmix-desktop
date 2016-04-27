@@ -1,9 +1,27 @@
 .main {
 	width: 100%;
 	height: 100%;
+	position: relative;
 }
-
 .search-input {
 	width:200px!important;
 	margin-right:20px;
+}
+/*left nav*/
+.left-nav>div {
+	z-index:999!important;
+}
+.left-nav-container {
+	padding-top:64px;
+	overflow: hidden;
+}
+.list-selected {
+	background-color: rgba(0,0,0,.2)
+}
+/*content*/
+.content-container {
+	width: 100%;
+	height:100%;
+	position: absolute;
+	top:0px;
 }
