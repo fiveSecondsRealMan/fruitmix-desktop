@@ -25,9 +25,10 @@ var actions = {
 		}
 	},
 
-	changeSelectedNavItem: (name) => {
+	changeSelectedNavItem: (name,index) => {
 		return {
-			type: 'NAV_SELECT'
+			type: 'NAV_SELECT',
+			select: name
 		}
 	}
 }

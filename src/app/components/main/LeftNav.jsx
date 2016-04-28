@@ -19,6 +19,8 @@ import HardwareVideogameAsset from 'material-ui/svg-icons/hardware/videogame-ass
  //import CSS
 import css  from  '../../../assets/css/main';
 
+//import action 
+import Action from '../../actions/action';
 const style = {
 	margin:0,
 	width:200,
@@ -33,7 +35,7 @@ const listStyle = {
 class leftNav extends Component {
 
 	itemSelect (name,index) {
-		console.log(name + "  " + index);
+		this.props.dispatch(Action.changeSelectedNavItem(name));
 	}
 
 	getChildContext() {
@@ -46,7 +48,6 @@ class leftNav extends Component {
 			<div className="left-nav-container">
 				<Menu style={style}>
 				{this.props.nav.nav.map((item,index) => {
-					console.log(item.name);
 					return (
 						<MenuItem 
 						className={item.selected?"list-selected":''}

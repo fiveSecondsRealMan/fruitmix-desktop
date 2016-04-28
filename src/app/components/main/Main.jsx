@@ -23,11 +23,12 @@ import css  from  '../../../assets/css/main';
 
 //import component
 import LeftNav from './LeftNav';
+import Content from './Content';
 
 // require common mixins
 import ImageModules from '../Mixins/ImageModules'; 
 
-class Main extends React.Component {
+class Main extends Component {
 	mixins: [ImageModules]
 
 	getChildContext() {
@@ -42,6 +43,7 @@ class Main extends React.Component {
 	render() {
 		return (
 			<div className="main">
+				{/*Bar*/}
 				<AppBar 
 				className='app-bar' title='my cloud' iconElementRight={
 					<div>
@@ -54,10 +56,14 @@ class Main extends React.Component {
 				onLeftIconButtonTouchTap={this.leftNavClick.bind(this)}
 				>
 				</AppBar>
+				{/*Left Nav*/}
 				<Drawer width={200} open={this.props.navigation.menu} className='left-nav'>
-					<LeftNav nav={this.props.navigation}/>
+					<LeftNav nav={this.props.navigation} dispatch={this.props.dispatch}/>
 				</Drawer>
-				<Paper className="content-container"></Paper>
+				{/*Content*/}
+				<Paper className={"content-container "+(this.props.navigation.menu?'content-has-left-padding':'')} style={{paddingTop:72}} zDepth={0}>
+					<Content nav={this.props.navigation.nav}></Content>
+				</Paper>
 			</div>
 			);
 	}
