@@ -4,6 +4,9 @@
 	height: 100%;
 	position: relative;
 }
+.app-bar {
+	box-sizing: border-box;
+}
 .search-input {
 	width:200px!important;
 	margin-right:20px;
@@ -15,6 +18,7 @@
 .left-nav-container {
 	padding-top:64px;
 	overflow: hidden;
+	box-sizing: border-box;
 }
 .list-selected {
 	background-color: rgba(0,0,0,.2)
@@ -24,10 +28,12 @@
 	width: 100%;
 	position: absolute;
 	top:0px;
-	margin-left:20px;
 }
-.content-has-left-padding {
-	padding-left:200px;
+.content-container.content-has-left-padding {
+	padding-left:220px;
+}
+.content-container.no-padding {
+	padding-left: 20px; 
 }
 /*CSSTRANISTION*/
 .content-appear {
@@ -53,13 +59,11 @@
 	top:0px;
 }
 
-/*.content-leave {
+.app-appear {
 	opacity: 0.01;
-	position: relative;
-	top:0px;
 }
-.content-leave.content-leave-active {
+.app-appear.app-appear-active {
 	opacity: 1;
-	transition: all 2000ms ease-out;
-	top:200px;
-}*/
+	transition: all 500ms ease-out;
+}
+

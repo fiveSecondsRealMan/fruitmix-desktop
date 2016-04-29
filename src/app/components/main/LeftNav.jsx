@@ -12,9 +12,7 @@
 import { Menu, MenuItem } from 'material-ui';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
-import ActionFlightTakeoff from 'material-ui/svg-icons/action/flight-takeoff';
-import FileCloudDownload from 'material-ui/svg-icons/file/cloud-download';
-import HardwareVideogameAsset from 'material-ui/svg-icons/hardware/videogame-asset';
+import svg from '../../utils/SVGIcon'
 
  //import CSS
 import css  from  '../../../assets/css/main';
@@ -29,7 +27,8 @@ const style = {
 
 const listStyle = {
 	height: 48,
-	lineHeight:'48px'
+	lineHeight:'48px',
+	paddingLeft:50
 }
 
 class leftNav extends Component {
@@ -45,22 +44,46 @@ class leftNav extends Component {
 
 	render () {
 		return (
-			<div className="left-nav-container">
+			<div className="left-nav-container" style={{position:'relative',height:'100%'}}>
 				<Menu style={style}>
 				{this.props.nav.nav.map((item,index) => {
-					return (
-						<MenuItem 
-						className={item.selected?"list-selected":''}
-						primaryText={item.name} 
-						key={index} 
-						desktop={true} 
-						onTouchTap={this.itemSelect.bind(this,item.name,index)}
-						style={style}
-						innerDivStyle={listStyle}
-						/>
-						)
+					if (item.type == 'leftNav') {
+						return (
+							<MenuItem 
+							className={item.selected?"list-selected":''}
+							primaryText={item.name} 
+							key={index} 
+							desktop={true} 
+							onTouchTap={this.itemSelect.bind(this,item.name,index)}
+							style={style}
+							innerDivStyle={listStyle}
+							leftIcon={item.icon?svg[item.icon]():null}
+							/>
+							)
+						}
 				})}
 				</Menu>
+				<div style={{position:'absolute',bottom:0,width:'100%'}}>
+					<div style={{marginBottom:100}}>
+						<div style={{border:'1px solid black',width:150,height:20,margin:'0 auto'}}>
+							<div style={{width:'50%',backgroundColor:'#666',height:'100%'}}></div>
+						</div>
+						<div style={{textAlign:'center',marginTop:10}}>use 2.5G of 5G</div>
+					</div>
+					<div>
+						<Menu>
+							{this.props.nav.nav.map((item,index) => (
+								item.type=='other'?<MenuItem primaryText={item.name}
+								className={item.selected?"list-selected":''}
+								innerDivStyle={listStyle}
+								leftIcon={item.icon?svg[item.icon]():null} 
+								onTouchTap={this.itemSelect.bind(this,item.name,index)}
+								key={index} 
+								 />:false
+								))}
+						</Menu>
+					</div>
+				</div>
 			</div>
 			)
 	}

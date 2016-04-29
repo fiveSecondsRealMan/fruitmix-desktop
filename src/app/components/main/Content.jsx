@@ -39,7 +39,7 @@ class MainContent extends Component {
 	render() {
 		return (
 			<div>
-				<CSS opts={['content', true, true, false, 800, 800, 500]}>
+				<CSS opts={['content', true, true, false, 800, 800, 800]}>
 				{this.getContentSelected()}
 				</CSS>
 			</div>

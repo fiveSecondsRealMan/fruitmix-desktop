@@ -14,11 +14,13 @@ const menu = (state = true, action) => {
 };
 //define default data of nav
 let navDefault = [
-	{ name: 'All my files', parent: null, selected: true }, 
-	{ name: 'My collection', parent: null, selected: false },
-	{ name: 'Files shared to me', parent: null, selected: false },
-	{ name: 'File i shared', parent: null, selected: false },
-	{ name: 'Files used recently', parent: null, selected: false }
+	 { name: 'All my files', parent: null, selected: true, type:'leftNav', icon:'cloud' }, 
+	 { name: 'My collection', parent: null, selected: false, type:'leftNav', icon:'star' },
+	 { name: 'Files shared to me', parent: null, selected: false, type:'leftNav', icon:'sharedToMe' },
+	 { name: 'File i shared', parent: null, selected: false, type:'leftNav', icon:'sharedByMe' },
+	 { name: 'Files used recently', parent: null, selected: false, type:'leftNav', icon:'recentUse' },
+        { name: 'delete files', parent: null, selected: false, type: 'other', icon:'deleteFiles'},
+        { name: 'settings', parent: null, selected: false, type: 'other', icon:'settings'}
 ];
 
 const nav = (state = navDefault, action) => {

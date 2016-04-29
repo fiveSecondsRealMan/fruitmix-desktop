@@ -66,7 +66,7 @@ class Index extends React.Component {
 		}
 		var busy = (this.props.login.state ==='BUSY');
 		return (
-			<div className='index-frame'>
+			<div className='index-frame' key='login'>
 				<Paper style={paperStyle} zDepth={4}>
 				{ !!busy && <CircularProgress /> }
 				{ !busy && <TextField  stype={{marginBottom: 10}} hintText="password" type="password" fullWidth={true} />}

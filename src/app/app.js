@@ -10,7 +10,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux'
 import { Router, Route, Link, hashHistory, IndexRoute} from 'react-router';
-import CSSTransition from 'react-addons-css-transition-group';
+ import CSS from './utils/transition';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
@@ -32,20 +32,16 @@ const store = configureStore();
 
 //APP component
 var App = React.createClass({
+	componentWillMount() {
+		console.log(ipc);
+	},
+
 	render() {
 		return(
 			<div className="app">
-				{this.props.children}
-				{/*<header>
-					<li style={{float:'left',marginRight:'50px'}}>
-						<Link to="/login" activeClassName="active" activeStyle={{color:'#c00'}}>login</Link>
-					</li>
-					<li style={{float:'left',marginRight:'50px'}}>
-						<Link to="/main" activeClassName="active" activeStyle={{color:'#c00'}}>main</Link>
-					</li>
-					<div>{window.location.href}</div>
-				</header>*/}
-					
+				<CSS opts={['app',true,true,true,500,5000,5000]}>
+					{this.props.children}
+				</CSS>
 			</div>
 			)
 	},
@@ -56,10 +52,10 @@ var routes = (
 	<Provider store={store}>
 		<Router history={hashHistory}>
 			<Route path="/" component={App}>
-		    		<Route path="login" component={Login}/>
-		    		<Route path='main' component={Main}/>
-		    		<Route path="*" component={NoFondPath}/>
-		    		<IndexRoute component={Login}/>
+		    		<Route key='login' path="login" component={Login}/>
+		    		<Route key='main' path='main' component={Main}/>
+		    		<Route key='*'path="*" component={NoFondPath}/>
+		    		<IndexRoute key='login' component={Login}/>
 		    	</Route>
 		</Router>
 	</Provider>
