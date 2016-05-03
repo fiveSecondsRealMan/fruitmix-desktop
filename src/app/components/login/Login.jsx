@@ -38,7 +38,6 @@ class Index extends React.Component {
 	}
 
 	componentDidMount() {
-		console.log(this.props);
 	}
 
 	submit() {

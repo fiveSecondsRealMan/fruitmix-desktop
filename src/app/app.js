@@ -32,10 +32,6 @@ const store = configureStore();
 
 //APP component
 var App = React.createClass({
-	componentWillMount() {
-		console.log(ipc);
-	},
-
 	render() {
 		return(
 			<div className="app">

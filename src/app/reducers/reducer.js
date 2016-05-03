@@ -2,11 +2,13 @@
 import { combineReducers } from 'redux'
 //import all reducers
 import login from './login';
-import navigation from './navigation'
+import navigation from './navigation';
+import data from './data'
 
 const reducer = combineReducers({
 	login,
-	navigation
+	navigation,
+	data
 });
 
 export default reducer; 

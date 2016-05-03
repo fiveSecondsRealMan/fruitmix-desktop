@@ -13,22 +13,30 @@ var actions = {
 	// 	}
 	// }
 
-	login: () => {
+	login() {
 		return {
 			type: 'LOGGEDIN'
 		}
 	},
 
-	navToggle: () => {
+	navToggle() {
 		return {
-			type: 'NAV_MENU_TOGGLE'
+			type: 'NAV_MENU_TOGGLE' 
 		}
 	},
 
-	changeSelectedNavItem: (name,index) => {
+	changeSelectedNavItem(name,index) {
 		return {
 			type: 'NAV_SELECT',
 			select: name
+		}
+	},
+
+	setDirctory(dir,children) {
+		return {
+			type: 'SET_DIRECTORY',
+			directory: dir,
+			children: children
 		}
 	}
 }

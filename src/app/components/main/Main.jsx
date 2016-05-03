@@ -41,6 +41,14 @@ class Main extends Component {
 		this.props.dispatch(Action.navToggle());
 	}
 
+	componentDidMount() {
+		var _this = this;
+		ipc.send('getRootData');
+		ipc.on('receive',function (dir,children) {
+			_this.props.dispatch(Action.setDirctory(dir,children ));
+		});
+	}
+
 	render() {
 		return (<CSS opts={['app',true,true,true,500,5000,5000]}>
 			<div className="main" key='main'>
@@ -62,7 +70,7 @@ class Main extends Component {
 					<LeftNav nav={this.props.navigation} dispatch={this.props.dispatch}/>
 				</Drawer>
 				{/*Content*/}
-				<Paper className={"content-container "+(this.props.navigation.menu?'content-has-left-padding':'no-padding')} style={{paddingTop:72}} zDepth={0}>
+				<Paper className={"content-container "+(this.props.navigation.menu?'content-has-left-padding':'no-padding')} style={{paddingTop:64}} zDepth={0}>
 					<Content nav={this.props.navigation.nav}></Content>
 				</Paper>
 			</div></CSS>
@@ -77,7 +85,8 @@ Main.childContextTypes = {
 function mapStateToProps (state) {
 	return {
 		navigation: state.navigation,
-		login: state.login
+		login: state.login,
+		data: state.data
 	}
 }
 

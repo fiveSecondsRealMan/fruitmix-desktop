@@ -6,7 +6,6 @@ const defaultState = {
 }
 
 const loginState = (state = defaultState, action) => {
-	console.log(action.type);
 	switch (action.type) {
 		case 'LOGINOUT':
 			return Object.assign({}, state, {

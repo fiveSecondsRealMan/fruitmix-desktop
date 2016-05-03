@@ -8,7 +8,7 @@
 // require core module
  import React, { findDOMNode, Component, PropTypes } from 'react';
  import CSS from '../../utils/transition';
-
+ import { connect, bindActionCreators } from 'react-redux'
 // import Component 
 import AllFile from '../mainContent/AllFiles';
 import Collection from '../mainContent/Collection';
@@ -20,7 +20,7 @@ class MainContent extends Component {
 
 	getContentSelected() {
 		let component = [];
-		component.push(<AllFile key={'a'}></AllFile>);
+		component.push(<AllFile key={'a'} data={this.props.data}></AllFile>);
 		component.push(<Collection key={'b'}></Collection>); 
 		component.push(<SharedFiles key={'c'}></SharedFiles>); 
 		component.push(<SharedByMe key={'d'}></SharedByMe>); 
@@ -32,14 +32,10 @@ class MainContent extends Component {
 		return component[selectedItem]
 	}
 
-	componentWillEnter() {
-		console.log('will enter');
-	}
-
 	render() {
 		return (
 			<div>
-				<CSS opts={['content', true, true, false, 800, 800, 800]}>
+				<CSS opts={['content', true, true, false, 800, 800, 500]}>
 				{this.getContentSelected()}
 				</CSS>
 			</div>
@@ -47,4 +43,10 @@ class MainContent extends Component {
 	}
 }
 
-export default MainContent;
+function mapStateToProps (state) {
+	return {
+		data: state.data
+	}
+}
+
+export default connect(mapStateToProps)(MainContent);
