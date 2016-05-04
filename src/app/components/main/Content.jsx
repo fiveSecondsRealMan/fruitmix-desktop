@@ -20,7 +20,7 @@ class MainContent extends Component {
 
 	getContentSelected() {
 		let component = [];
-		component.push(<AllFile key={'a'} data={this.props.data}></AllFile>);
+		component.push(<AllFile key={'a'}></AllFile>);
 		component.push(<Collection key={'b'}></Collection>); 
 		component.push(<SharedFiles key={'c'}></SharedFiles>); 
 		component.push(<SharedByMe key={'d'}></SharedByMe>); 

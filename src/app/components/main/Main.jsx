@@ -45,7 +45,7 @@ class Main extends Component {
 		var _this = this;
 		ipc.send('getRootData');
 		ipc.on('receive',function (dir,children) {
-			_this.props.dispatch(Action.setDirctory(dir,children ));
+			_this.props.dispatch(Action.setDirctory(dir,children,parent ));
 		});
 	}
 

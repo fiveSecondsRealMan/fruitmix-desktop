@@ -12,7 +12,7 @@
 import { Menu, MenuItem } from 'material-ui';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
-import svg from '../../utils/SVGIcon'
+import svg from '../../utils/SVGIcon';
 
  //import CSS
 import css  from  '../../../assets/css/main';

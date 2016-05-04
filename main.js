@@ -9,6 +9,8 @@ var fs = require ('fs');
 var mainWindow = null;
 var allFiles = null;
 var currentDirectory = {};
+var children = [];
+var parent = {};
 
 app.on('ready', function() {
         if (!configuration.readSettings('shortcutKeys')) {
@@ -27,9 +29,23 @@ app.on('ready', function() {
 ipc.on('getRootData', ()=> {
         fs.readFile('data.json', function (err, data) {
         allFiles = data = eval(data.toString());
-        // mainWindow.webContents.send('receive', allFiles);
-        mainWindow.webContents.send('receive', {},data.filter(item=>item.parent==''));
+        children = data.filter(item=>item.parent=='');
+        mainWindow.webContents.send('receive', currentDirectory,children,parent);
         });
+});
+
+ipc.on('selectChildren', (event,selectItem) => {
+    console.log(selectItem.children);
+    parent = Object.assign({},currentDirectory);
+    currentDirectory = Object.assign({},selectItem);
+    children.length = 0;
+    for (let item of allFiles) {
+        if (item.parent == selectItem.uuid) {
+            console.log(item.uuid);
+            children.push(item);
+        }
+    }
+    // console.log(children.length);
 });
 
 // function setGlobalShortcuts() {
