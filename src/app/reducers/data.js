@@ -2,7 +2,8 @@ const defaultDirectory = {
 	state: 'READY', // READY, BUSY, REJECTED, ERROR
 	directory: {},
 	children:[],
-	parent: []
+	parent: [],
+	path:[]
 }
 
 const directory = (state=defaultDirectory,action)=> {

@@ -6,6 +6,7 @@
 }
 .app-bar {
 	box-sizing: border-box;
+	position: fixed!important;
 }
 .search-input {
 	width:200px!important;
@@ -38,25 +39,19 @@
 /*CSSTRANISTION*/
 .content-appear {
 	opacity: 0.01;
-	position: relative;
-	top:200px;
 	color:red;
 }
 .content-appear.content-appear-active {
 	opacity: 1;
 	transition: all 800ms ease-out;
-	top:0px;
-	color:black;
 }
 .content-enter {
 	opacity: 0.01;
 	position: relative;
-	top:200px;
 }
 .content-enter.content-enter-active {
 	opacity: 1;
 	transition: all 800ms ease-out;
-	top:0px;
 }
 
 .app-appear {
@@ -69,6 +64,10 @@
 /*AllFiles*/
 .breadcrumb {
 	height:48px;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: flex-start;
+	align-items: center;
 }
 .all-my-files {
 	display: flex;

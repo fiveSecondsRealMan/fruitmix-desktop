@@ -32,12 +32,13 @@ var actions = {
 		}
 	},
 
-	setDirctory(dir,children,parent) {
+	setDirctory(dir,children,parent,path) {
 		return {
 			type: 'SET_DIRECTORY',
 			directory: dir,
 			children: children,
-			parent: parent
+			parent: parent,
+			path:path
 		}
 	}
 }

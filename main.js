@@ -11,6 +11,7 @@ var allFiles = null;
 var currentDirectory = {};
 var children = [];
 var parent = {};
+var path = [];
 
 app.on('ready', function() {
         if (!configuration.readSettings('shortcutKeys')) {
@@ -30,22 +31,60 @@ ipc.on('getRootData', ()=> {
         fs.readFile('data.json', function (err, data) {
         allFiles = data = eval(data.toString());
         children = data.filter(item=>item.parent=='');
-        mainWindow.webContents.send('receive', currentDirectory,children,parent);
+        path.length = 0;
+        path.push({key:'',value:{}});
+        mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
         });
 });
 
 ipc.on('selectChildren', (event,selectItem) => {
-    console.log(selectItem.children);
-    parent = Object.assign({},currentDirectory);
+    //parent
+    var parentUUID = selectItem.parent;
+    var parentObj = {};
+    if (parentUUID) {
+        for (let item of allFiles) {
+            if (item.uuid == parentUUID) {
+                parentObj = item;
+            }
+        }
+    }
+    parent = Object.assign({},parentObj);
+    //currentDirectory
     currentDirectory = Object.assign({},selectItem);
+    //children
     children.length = 0;
     for (let item of allFiles) {
         if (item.parent == selectItem.uuid) {
-            console.log(item.uuid);
             children.push(item);
         }
     }
-    // console.log(children.length);
+    //path
+    try {
+        path.length = 0;
+        var pathArr = selectItem.path.split('/');
+        var pathObj = [];
+        var getParentPath = function (obj) {
+            pathObj.unshift(obj);
+            if (obj.parent) {
+                for (let item of allFiles) {
+                    if (item.uuid == obj.parent) {
+                        getParentPath(item);
+                    }
+                }
+            }else {
+                pathObj.unshift({});
+            }
+        }
+        getParentPath(selectItem);
+        for (let i = 0;i<pathArr.length;i++) {
+            path.push({key:pathArr[i],value:pathObj[i]});
+        }
+    }catch(e) {
+        console.log(e);        
+        path.length=0;
+    }finally {
+        mainWindow.webContents.send('receive',currentDirectory,children,parent,path);
+    }
 });
 
 // function setGlobalShortcuts() {

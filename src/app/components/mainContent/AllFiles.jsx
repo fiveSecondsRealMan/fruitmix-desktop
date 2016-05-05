@@ -9,8 +9,9 @@
  import React, { findDOMNode, Component, PropTypes } from 'react';
  import { connect, bindActionCreators } from 'react-redux';
 //require material
-import { Paper } from 'material-ui';
+import { Paper, FontIcon, SvgIcon } from 'material-ui';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
+import {blue500, red500, greenA200} from 'material-ui/styles/colors';
 import svg from '../../utils/SVGIcon';
 // import Component 
 
@@ -22,7 +23,10 @@ class AllFiles extends Component {
 			<div className='all-my-files'>
 				<Paper className='file-area'>
 					<div className='breadcrumb'>
-					{this.getBreadCrumb()}
+						<SvgIcon onClick={this.backToParent.bind(this)} color={greenA200} style={{marginLeft:10,marginRight:14,cursor:'pointer'}}>
+						{svg['back']()}
+						</SvgIcon>
+						{this.getBreadCrumb()}
 					</div>
 					<div className="all-files-container">
 						<Table
@@ -46,21 +50,6 @@ class AllFiles extends Component {
 										</TableRow>
 										)
 								})}
-										<TableRow>
-											<TableRowColumn>1</TableRowColumn>
-											<TableRowColumn>2</TableRowColumn>
-											<TableRowColumn>3</TableRowColumn>
-										</TableRow>
-										<TableRow>
-											<TableRowColumn>1</TableRowColumn>
-											<TableRowColumn>2</TableRowColumn>
-											<TableRowColumn>3</TableRowColumn>
-										</TableRow>
-										<TableRow>
-											<TableRowColumn>1</TableRowColumn>
-											<TableRowColumn>2</TableRowColumn>
-											<TableRowColumn>3</TableRowColumn>
-										</TableRow>
 							</TableBody>
 						</Table>
 					</div>
@@ -72,17 +61,48 @@ class AllFiles extends Component {
 		)
 	}
 	getBreadCrumb(){
-		if (!!this.props.data.directory.path) {
-			return this.props.data.directory.path
-		}
-		return 'root'
+		var _this = this;
+		var path = this.props.data.path;
+		var pathArr = [];
+		pathArr = path.map((item,index)=>(
+				<span style={{display:'flex',alignItems:'center'}}>
+					<span 
+					style={{display:'flex',alignItems:'center',marginRight:10}}
+					onClick={_this.selectBreadCrumb.bind(_this,item)}
+					>
+						{item.key!=''?item.key:<SvgIcon>{svg['home']()}</SvgIcon>}
+					</span>
+					<span style={{marginRight:5}}>></span>
+				</span>
+			));
+		return pathArr;
+
 	}
 
 	selectChildren (rowNumber) {
 		var children = this.props.data.children;
-		console.log(children[rowNumber]);
-		if (children[rowNumber]) {
-			ipc.send('selectChildren',children[rowNumber].uuid);
+		if (children[rowNumber] && children[rowNumber].type == 'folder') {
+			ipc.send('selectChildren',children[rowNumber]);
+		}
+	}
+
+	backToParent () {
+		let parent = this.props.data.parent;
+		let path = this.props.data.path;
+		if (path.length == 1) {
+			return;
+		}else if (path.length == 2) { 
+			ipc.send('getRootData');
+		}else {
+			ipc.send('selectChildren',parent);
+		}
+	}
+
+	selectBreadCrumb(obj) {
+		if (obj.key == '') {
+			ipc.send('getRootData');
+		}else {
+			ipc.send('selectChildren',obj.value);
 		}
 	}
 }
