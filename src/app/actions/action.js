@@ -40,6 +40,19 @@ var actions = {
 			parent: parent,
 			path:path
 		}
+	},
+
+	selectChildren(rowNumber) {
+		return {
+			type: 'SELECT_CHILDREN',
+			rowNumber:rowNumber
+		}
+	},
+
+	selectAllChildren() {
+		return {
+			type: 'SELECT_ALL_CHILDREN',
+		}
 	}
 }
 

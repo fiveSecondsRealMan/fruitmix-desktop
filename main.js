@@ -31,13 +31,14 @@ ipc.on('getRootData', ()=> {
         fs.readFile('data.json', function (err, data) {
         allFiles = data = eval(data.toString());
         children = data.filter(item=>item.parent=='');
+        children = children.map((item)=>Object.assign({},{checked:false},item));
         path.length = 0;
         path.push({key:'',value:{}});
         mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
         });
 });
 
-ipc.on('selectChildren', (event,selectItem) => {
+ipc.on('enterChildren', (event,selectItem) => {
     //parent
     var parentUUID = selectItem.parent;
     var parentObj = {};
@@ -58,6 +59,7 @@ ipc.on('selectChildren', (event,selectItem) => {
             children.push(item);
         }
     }
+    children = children.map((item)=>Object.assign({},{checked:false},item));
     //path
     try {
         path.length = 0;

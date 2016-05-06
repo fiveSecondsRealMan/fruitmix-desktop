@@ -8,7 +8,7 @@
 // require core module
  import React, { findDOMNode, Component, PropTypes } from 'react';
  import CSS from '../../utils/transition';
- import { connect, bindActionCreators } from 'react-redux'
+ import { connect, bindActionCreators } from 'react-redux';
 // import Component 
 import AllFile from '../mainContent/AllFiles';
 import Collection from '../mainContent/Collection';
@@ -34,7 +34,7 @@ class MainContent extends Component {
 
 	render() {
 		return (
-			<div>
+			<div className=''>
 				<CSS opts={['content', true, true, false, 800, 800, 500]}>
 				{this.getContentSelected()}
 				</CSS>

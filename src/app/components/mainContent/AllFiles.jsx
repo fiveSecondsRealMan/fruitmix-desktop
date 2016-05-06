@@ -14,6 +14,7 @@ import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColu
 import {blue500, red500, greenA200} from 'material-ui/styles/colors';
 import svg from '../../utils/SVGIcon';
 // import Component 
+import FilesTable from './FilesTable';
 
 class AllFiles extends Component {
 	render() {
@@ -29,30 +30,9 @@ class AllFiles extends Component {
 						{this.getBreadCrumb()}
 					</div>
 					<div className="all-files-container">
-						<Table
-						multiSelectable={true}
-						showRowHover={true}
-						>
-							<TableHeader>
-								<TableRow>
-									<TableHeaderColumn>name</TableHeaderColumn>
-									<TableHeaderColumn>update time</TableHeaderColumn>
-									<TableHeaderColumn>size</TableHeaderColumn>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{_this.props.data.children.map( (item,index)=> {
-									return (
-										<TableRow rouNumber={index} key={index} onDoubleClick={_this.selectChildren.bind(_this,index)}>
-											<TableRowColumn>{item.attribute.name}</TableRowColumn>
-											<TableRowColumn>{item.attribute.changetime}</TableRowColumn>
-											<TableRowColumn>{item.attribute.size}</TableRowColumn>
-										</TableRow>
-										)
-								})}
-							</TableBody>
-						</Table>
+						<FilesTable/>
 					</div>
+					
 				</Paper>
 				<Paper className='file-detail'>
 
@@ -65,7 +45,7 @@ class AllFiles extends Component {
 		var path = this.props.data.path;
 		var pathArr = [];
 		pathArr = path.map((item,index)=>(
-				<span style={{display:'flex',alignItems:'center'}}>
+				<span key={index} style={{display:'flex',alignItems:'center'}}>
 					<span 
 					style={{display:'flex',alignItems:'center',marginRight:10}}
 					onClick={_this.selectBreadCrumb.bind(_this,item)}
@@ -79,14 +59,8 @@ class AllFiles extends Component {
 
 	}
 
-	selectChildren (rowNumber) {
-		var children = this.props.data.children;
-		if (children[rowNumber] && children[rowNumber].type == 'folder') {
-			ipc.send('selectChildren',children[rowNumber]);
-		}
-	}
-
 	backToParent () {
+		$('.bezierFrame').empty().append('<div class="bezierTransition1"></div><div class="bezierTransition2"></div>');
 		let parent = this.props.data.parent;
 		let path = this.props.data.path;
 		if (path.length == 1) {
@@ -94,16 +68,21 @@ class AllFiles extends Component {
 		}else if (path.length == 2) { 
 			ipc.send('getRootData');
 		}else {
-			ipc.send('selectChildren',parent);
+			ipc.send('enterChildren',parent);
 		}
 	}
 
 	selectBreadCrumb(obj) {
+		$('.bezierFrame').empty().append('<div class="bezierTransition1"></div><div class="bezierTransition2"></div>');
 		if (obj.key == '') {
 			ipc.send('getRootData');
 		}else {
-			ipc.send('selectChildren',obj.value);
+			ipc.send('enterChildren',obj.value);
 		}
+	}
+
+	dbc () {
+		console.log('dbc');
 	}
 }
 
