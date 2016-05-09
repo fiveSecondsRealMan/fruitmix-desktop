@@ -49,6 +49,12 @@ class Main extends Component {
 		});
 	}
 
+	triggerClick(e) {
+		if (this.props.data.menu.show) {
+			this.props.dispatch(Action.toggleMenu());
+		}
+	}
+
 	render() {
 		return (<CSS opts={['app',true,true,true,500,5000,5000]}>
 			<div className="main" key='main'>
@@ -70,7 +76,7 @@ class Main extends Component {
 					<LeftNav nav={this.props.navigation} dispatch={this.props.dispatch}/>
 				</Drawer>
 				{/*Content*/}
-				<Paper className={"content-container "+(this.props.navigation.menu?'content-has-left-padding':'no-padding')} style={{paddingTop:64}} zDepth={0}>
+				<Paper className={"content-container "+(this.props.navigation.menu?'content-has-left-padding':'no-padding')} style={{paddingTop:64}} zDepth={0} onClick={this.triggerClick.bind(this)}>
 					<Content nav={this.props.navigation.nav}></Content>
 				</Paper>
 			</div></CSS>

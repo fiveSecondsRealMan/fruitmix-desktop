@@ -33,7 +33,7 @@ const listStyle = {
 
 class leftNav extends Component {
 
-	itemSelect (name,index) {
+	itemSelect (name,index,e) {
 		this.props.dispatch(Action.changeSelectedNavItem(name));
 	}
 

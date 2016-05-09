@@ -53,6 +53,15 @@ var actions = {
 		return {
 			type: 'SELECT_ALL_CHILDREN',
 		}
+	},
+
+	toggleMenu(obj,x,y) {
+		return {
+			type: 'TOGGLE_MENU',
+			obj : obj,
+			x: x,
+			y: y
+		}
 	}
 }
 

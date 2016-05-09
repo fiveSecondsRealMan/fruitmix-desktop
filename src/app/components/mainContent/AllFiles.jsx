@@ -15,6 +15,7 @@ import {blue500, red500, greenA200} from 'material-ui/styles/colors';
 import svg from '../../utils/SVGIcon';
 // import Component 
 import FilesTable from './FilesTable';
+import Menu from './Menu';
 
 class AllFiles extends Component {
 	render() {
@@ -31,6 +32,7 @@ class AllFiles extends Component {
 					</div>
 					<div className="all-files-container">
 						<FilesTable/>
+						<Menu></Menu>
 					</div>
 					
 				</Paper>

@@ -12,6 +12,7 @@ import { connect, bindActionCreators } from 'react-redux';
 import Action from '../../actions/action';
 import svg from '../../utils/SVGIcon';
 
+
 class AllFilesTable extends Component {
 	render() {
 		var _this = this;
@@ -21,8 +22,8 @@ class AllFilesTable extends Component {
 					<tr>
 						<th onClick={this.selectAllChildren.bind(this)}>
 							<div className='selectBox' >
-								<div>{svg.blackFrame()}</div>
-								<div>{svg.select()}</div>
+								<div>{this.props.data.selectAll?svg.select():svg.blackFrame()}</div>
+								<div></div>
 								<div></div>
 							</div>
 						</th>
@@ -34,9 +35,9 @@ class AllFilesTable extends Component {
 				<tbody>
 					{this.props.data.children.map((item,index)=>{
 						return (
-							<tr key={index} onClick={_this.selectChildren.bind(_this,index)} onDoubleClick={_this.enterChildren.bind(_this,index)} 
+							<tr key={index} onTouchTap={_this.selectChildren.bind(_this,index)} onDoubleClick={_this.enterChildren.bind(_this,index)} 
 							className={item.checked==true?'tr-selected-background':''}>
-								<td onClick={this.addBezier.bind(this,index)} data-selected={item.checked.toString()} className='first-td'>
+								<td onClick={this.addBezier.bind(this,index)} data-selected={item.checked} className='first-td'>
 									<div className='selectBox'>
 										<div>{item.checked==false?svg.blackFrame():svg.select()}</div>
 										<div className='bezierFrame' style={{width:48,height:48}}>
@@ -46,9 +47,9 @@ class AllFilesTable extends Component {
 										<div></div>
 									</div>
 								</td>
-								<td>{item.attribute.name}</td>
-								<td>{item.attribute.changetime}</td>
-								<td>{item.attribute.size}</td>
+								<td title={item.attribute.name}>{item.attribute.name}</td>
+								<td title={item.attribute.changetime}>{item.attribute.changetime}</td>
+								<td title={item.attribute.size}>{item.attribute.size}</td>
 							</tr>
 							)
 					})}
@@ -67,15 +68,23 @@ class AllFilesTable extends Component {
 		}
 	}
 
-	selectChildren (rowNumber) {
+	selectChildren (rowNumber,e) {
 		//bezier
 		if (this.props.data.children[rowNumber].checked == true) {
 			this.bez1(rowNumber);
 		}else {
 			this.bez2(rowNumber);
 		}
-		//action
-		this.props.dispatch(Action.selectChildren(rowNumber));
+		
+		if (e.nativeEvent.button == 2) {
+			let x = e.nativeEvent.pageX;
+			let y = e.nativeEvent.pageY;
+			this.props.dispatch(Action.toggleMenu(this.props.data.children[rowNumber],x,y));
+		}else {
+			//action
+			this.props.dispatch(Action.selectChildren(rowNumber));	
+		}
+		
 	}
 
 	addBezier (rowNumber) {
@@ -99,18 +108,7 @@ class AllFilesTable extends Component {
 	}
 
 	selectAllChildren() {
-		if (this.props.data.selectAll) {
-			$('tbody td:eq(1)').trigger('click');
-		}else {
-			let dom = document.getElementsByClassName('first-td');
-			for (var i =0;i<dom.length;i++) {
-				console.log(dom[i].getAttribute['data-selected']);
-				if (dom[i].getAttribute['data-selected']=='false') {
-					$(dom[i]).trigger('click');
-				}
-			}
-		}
- 
+ 		this.props.dispatch(Action.selectAllChildren());
 	}
 }
 
