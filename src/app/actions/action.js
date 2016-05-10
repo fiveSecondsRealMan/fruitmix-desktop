@@ -55,14 +55,24 @@ var actions = {
 		}
 	},
 
-	toggleMenu(obj,x,y) {
+	toggleMenu(objArr,x,y,selected) {
 		return {
 			type: 'TOGGLE_MENU',
-			obj : obj,
+			objArr : objArr,
 			x: x,
-			y: y
+			y: y,
+			selected:selected
+		}
+	},
+
+	setDetail(objArr) {
+		return {
+			type : 'SET_DETAIL',
+			objArr : objArr
 		}
 	}
+
+
 }
 
 module.exports = actions;

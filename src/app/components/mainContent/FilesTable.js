@@ -75,13 +75,17 @@ class AllFilesTable extends Component {
 		}else {
 			this.bez2(rowNumber);
 		}
-		
 		if (e.nativeEvent.button == 2) {
+			//right click
 			let x = e.nativeEvent.pageX;
 			let y = e.nativeEvent.pageY;
-			this.props.dispatch(Action.toggleMenu(this.props.data.children[rowNumber],x,y));
+			if (this.props.data.children[rowNumber].checked == false) {	
+				this.props.dispatch(Action.toggleMenu([this.props.data.children[rowNumber]],x,y,false));
+			}else {
+				this.props.dispatch(Action.toggleMenu([this.props.data.children[rowNumber]],x,y,true));
+			}
 		}else {
-			//action
+			//left click
 			this.props.dispatch(Action.selectChildren(rowNumber));	
 		}
 		

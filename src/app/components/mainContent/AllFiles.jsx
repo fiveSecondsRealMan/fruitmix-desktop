@@ -16,13 +16,14 @@ import svg from '../../utils/SVGIcon';
 // import Component 
 import FilesTable from './FilesTable';
 import Menu from './Menu';
+import Detail from './Detail'
 
 class AllFiles extends Component {
 	render() {
 		var _this = this;
 		var children = this.props.data.children;
 		return (
-			<div className='all-my-files'>
+			<div className='all-my-files' style={{height:(document.body.clientHeight-64)+'px'}}>
 				<Paper className='file-area'>
 					<div className='breadcrumb'>
 						<SvgIcon onClick={this.backToParent.bind(this)} color={greenA200} style={{marginLeft:10,marginRight:14,cursor:'pointer'}}>
@@ -36,8 +37,8 @@ class AllFiles extends Component {
 					</div>
 					
 				</Paper>
-				<Paper className='file-detail'>
-
+				<Paper className='file-detail' style={{width:this.props.data.detail.length==0?'0px':'350px'}}>
+					<Detail></Detail>
 				</Paper>
 			</div>
 		)
@@ -50,8 +51,7 @@ class AllFiles extends Component {
 				<span key={index} style={{display:'flex',alignItems:'center'}}>
 					<span 
 					style={{display:'flex',alignItems:'center',marginRight:10}}
-					onClick={_this.selectBreadCrumb.bind(_this,item)}
-					>
+					onClick={_this.selectBreadCrumb.bind(_this,item)}>
 						{item.key!=''?item.key:<SvgIcon>{svg['home']()}</SvgIcon>}
 					</span>
 					<span style={{marginRight:5}}>></span>

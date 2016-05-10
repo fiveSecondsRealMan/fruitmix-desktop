@@ -4,8 +4,10 @@ const defaultDirectory = {
 	children:[],
 	parent: [],
 	path:[],
-	selectAll:false,
-	menu:{show:false,obj:{}}
+	selectAll:false, 
+	multiple:false,
+	menu:{show:false,objArr:[]},
+	detail:[]
 }
 
 const directory = (state=defaultDirectory,action)=> {
@@ -32,13 +34,31 @@ const directory = (state=defaultDirectory,action)=> {
 			});
 			return Object.assign({},state,{children:children,selectAll:!state.selectAll});
 		case 'TOGGLE_MENU':
-			if (action.obj)  {
-				//open
-				return Object.assign({},state,{menu:{show:true,obj:action.obj,x:action.x,y: action.y}});
+			if (action.objArr)  {
+				//open menu
+				if (action.selected) {
+					//click item has been selected 
+					//put it into menu
+					return Object.assign({},state,{menu:{show:true,objArr:action.objArr,x:action.x,y: action.y}});	
+				}else {
+					//click item is not selected
+					//set all children item state of checked to false and select click item
+					let children = state.children.map((item,index)=>{
+						if (item.uuid == action.objArr[0].uuid) {
+							return Object.assign({},item,{checked:true});
+						}else {
+							 return Object.assign({},item,{checked:false});
+						}
+					});
+					return Object.assign({},state,{children:children,menu:{show:true,objArr:action.objArr,x:action.x,y: action.y}});
+				}
+				
 			}else {
-				//close
-				return Object.assign({},state,{menu:{show:false,obj:{}}});
+				//close menu
+				return Object.assign({},state,{menu:{show:false,obj:[]}});
 			}
+		case 'SET_DETAIL':
+			return Object.assign({},state,{detail:action.objArr});
 			
 		default:
 			return state

@@ -75,15 +75,17 @@
 	flex-wrap: nowrap;
 	justify-content: center;
 	align-items: flex-start;
+
 }
 .file-area {
-	flex-grow: 1;
-	height:666px;
+	overflow-x:hidden;
+	height:100%;
 	padding-top:8px;
+	overflow-y: auto;
+	
 }
 .file-detail {
-	flex:0 0 300px;
-	height:666px;
+	height: 100%;
 }
 .all-files-container {
 	position: relative;
@@ -181,4 +183,19 @@
 	position: absolute;
 	left:0px;
 	top:0px;
+}
+.MenuContainer .menu-list{
+	width:100%;
+	line-height: 30px;
+}
+
+/*detail*/
+.detail-container{
+	box-sizing: border-box;
+/*	padding:10px 20px;*/
+}
+.detail-container>div{
+	margin-bottom: 10px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }

@@ -28,24 +28,43 @@ class PopMenu extends Component {
 			});
 		}
 		return (
-			<div className='MenuContainer menu' style={style} onClick={this.stopPropagation.bind(this)}>
-				<Paper>
-					<Menu desktop={true} listStyle={{lineHeight:'30px'}}>
-						<MenuItem primaryText='1'></MenuItem>
-						<MenuItem primaryText='2'></MenuItem>
-						<MenuItem primaryText='3'></MenuItem>
-						<MenuItem primaryText='4'></MenuItem>
-						<MenuItem primaryText='5'></MenuItem>
+			<div className='MenuContainer menu' style={style}>
+				<Paper zDepth={2}>
+					<Menu className='menu-list' desktop={true} autoWidth={false}>
+						<MenuItem primaryText='详细信息' onTouchTap={this.detail.bind(this)}></MenuItem>
+						<MenuItem primaryText='重命名' onTouchTap={this.rename.bind(this)}></MenuItem>
+						<MenuItem primaryText='移至' onTouchTap={this.moveto.bind(this)}></MenuItem>
+						<MenuItem primaryText='分享' onTouchTap={this.share.bind(this)}></MenuItem>
+						<MenuItem primaryText='保存' onTouchTap={this.save.bind(this)}></MenuItem>
+						<MenuItem primaryText='收藏' onTouchTap={this.collect.bind(this)}></MenuItem>
 					</Menu>
 				</Paper>
 			</div>
 			)
 	}
 
-	stopPropagation(event) {
-		console.log('Menu');
-		event.stopPropagation();
-		event.preventDefault();
+	detail() {
+		this.props.dispatch(Action.setDetail(this.props.data.menu.objArr));
+	}
+
+	rename() {
+
+	}
+
+	moveto() {
+
+	}
+
+	share() {
+
+	}
+
+	save() {
+
+	}
+
+	collect() {
+
 	}
 }
 
