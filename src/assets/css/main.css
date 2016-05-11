@@ -82,6 +82,7 @@
 	height:100%;
 	padding-top:8px;
 	overflow-y: auto;
+	position: relative;
 	
 }
 .file-detail {
@@ -122,6 +123,7 @@
 .allFileTable td {
 	color:rgba(0, 0, 0, 0.870588);
 	height:48px;
+	cursor:default;
 }
 .allFileTable th,.allFileTable td {
 	font-weight:normal;
@@ -132,6 +134,7 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	cursor:default;
 }
 .allFileTable th:nth-child(1),.allFileTable td:nth-child(1) {
 	width:24px;

@@ -33,6 +33,7 @@ var actions = {
 	},
 
 	setDirctory(dir,children,parent,path) {
+		
 		return {
 			type: 'SET_DIRECTORY',
 			directory: dir,
@@ -69,6 +70,28 @@ var actions = {
 		return {
 			type : 'SET_DETAIL',
 			objArr : objArr
+		}
+	},
+
+	mouseDown(left,top) {
+		return {
+			type: 'MOUSE_DOWN',
+			left: left,
+			top: top
+		}
+	},
+
+	mouseMove(width,height) {
+		return {
+			type: 'MOUSE_MOVE',
+			width: width,
+			height:height
+		}
+	},
+
+	mouseUp() {
+		return {
+			type: 'MOUSE_UP'
 		}
 	}
 

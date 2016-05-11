@@ -13,10 +13,12 @@ import { Paper, FontIcon, SvgIcon } from 'material-ui';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import {blue500, red500, greenA200} from 'material-ui/styles/colors';
 import svg from '../../utils/SVGIcon';
+//import Action
+import Action from '../../actions/action';
 // import Component 
 import FilesTable from './FilesTable';
 import Menu from './Menu';
-import Detail from './Detail'
+import Detail from './Detail';
 
 class AllFiles extends Component {
 	render() {
@@ -24,7 +26,7 @@ class AllFiles extends Component {
 		var children = this.props.data.children;
 		return (
 			<div className='all-my-files' style={{height:(document.body.clientHeight-64)+'px'}}>
-				<Paper className='file-area'>
+				<Paper className='file-area' onMouseDown={this.mouseDown.bind(this)}>
 					<div className='breadcrumb'>
 						<SvgIcon onClick={this.backToParent.bind(this)} color={greenA200} style={{marginLeft:10,marginRight:14,cursor:'pointer'}}>
 						{svg['back']()}
@@ -83,8 +85,8 @@ class AllFiles extends Component {
 		}
 	}
 
-	dbc () {
-		console.log('dbc');
+	mouseDown(e) {
+		this.props.dispatch(Action.mouseDown(e.nativeEvent.x,e.nativeEvent.y));
 	}
 }
 

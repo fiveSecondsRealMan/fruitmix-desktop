@@ -25,6 +25,7 @@ import css  from  '../../../assets/css/main';
 //import component
 import LeftNav from './LeftNav';
 import Content from './Content';
+import Multiple from '../mainContent/Multiple';
 
 // require common mixins
 import ImageModules from '../Mixins/ImageModules'; 
@@ -57,8 +58,9 @@ class Main extends Component {
 
 	render() {
 		return (<CSS opts={['app',true,true,true,500,5000,5000]}>
-			<div className="main" key='main'>
+			<div className="main" key='main' onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)}>
 				{/*Bar*/}
+				<Multiple/>
 				<AppBar 
 				className='app-bar' title='my cloud' iconElementRight={
 					<div>
@@ -82,6 +84,74 @@ class Main extends Component {
 			</div></CSS>
 			);
 	}
+
+	mouseMove(e) {
+		 e.preventDefault(); e.stopPropagation();
+		if (this.props.multiple.multiple.isShow == true) {
+			this.props.dispatch(Action.mouseMove(e.nativeEvent.x,e.nativeEvent.y));
+			let mul = this.props.multiple.multiple;
+ 			let height = Math.abs(mul.top-mul.height);;
+ 			let part = Math.ceil(height/51);
+ 			let top = Math.min(mul.top,mul.height)+document.getElementsByClassName('file-area')[0].scrollTop;
+ 			let bottom = Math.max(mul.top,mul.height)+document.getElementsByClassName('file-area')[0].scrollTop;
+
+ 			let position = this.props.data.position;
+ 			for (let i = 0;i < position.length; i++) {
+ 				if (position[i].bottom<top) {
+ 					if (this.props.data.children[i].checked == true) {
+ 						this.props.dispatch(Action.selectChildren(i));	
+ 					}
+ 					continue;
+ 				}
+ 				if (position[i].bottom>top&&position[i].top<top) {
+ 					if (this.props.data.children[i].checked == false) {
+ 						this.props.dispatch(Action.selectChildren(i));	
+ 						if (this.props.data.detail.length!=0) {
+ 							this.props.dispatch(Action.setDetail([this.props.data.children[i]]));
+ 						}
+ 						
+ 					}
+
+ 					continue;
+ 				}
+ 				if (position[i].bottom<bottom&&position[i].top>top) {
+ 					if (this.props.data.children[i].checked == false) {
+ 						this.props.dispatch(Action.selectChildren(i));	
+ 						if (this.props.data.detail.length!=0) {
+ 							this.props.dispatch(Action.setDetail([this.props.data.children[i]]));
+ 						}
+ 					}
+ 					continue;
+ 				}
+ 				if (position[i].top<bottom&&position[i].bottom>bottom) {
+ 					if (this.props.data.children[i].checked == false) {
+ 						this.props.dispatch(Action.selectChildren(i));	
+ 						if (this.props.data.detail.length!=0) {
+ 							this.props.dispatch(Action.setDetail([this.props.data.children[i]]));
+ 						}
+ 					}
+ 					continue;
+ 				}
+ 				if (position[i].top>bottom) {
+ 					if (this.props.data.children[i].checked == true) {
+ 						this.props.dispatch(Action.selectChildren(i));	
+ 					}
+ 					continue;	
+ 				}
+ 			}
+
+
+			var num = [];
+			var dis = this.props.data.multiple;
+			
+		}
+	}
+
+	mouseUp() {
+		if (this.props.multiple.multiple.isShow == true) {
+			this.props.dispatch(Action.mouseUp());
+		}
+	}
 }
 
 Main.childContextTypes = {
@@ -92,7 +162,8 @@ function mapStateToProps (state) {
 	return {
 		navigation: state.navigation,
 		login: state.login,
-		data: state.data
+		data: state.data,
+		multiple:state.multiple
 	}
 }
 

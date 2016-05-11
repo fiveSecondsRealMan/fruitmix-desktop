@@ -5,7 +5,7 @@ const defaultDirectory = {
 	parent: [],
 	path:[],
 	selectAll:false, 
-	multiple:false,
+	position:[],
 	menu:{show:false,objArr:[]},
 	detail:[]
 }
@@ -13,7 +13,10 @@ const defaultDirectory = {
 const directory = (state=defaultDirectory,action)=> {
 	switch (action.type) {
 		case 'SET_DIRECTORY':
-			return Object.assign({}, state, action);
+			let position = action.children.map((item,index)=>{
+				return {top:index*51+58+48+8+64,bottom:(index+1)*51+58+48+8+64}
+			})
+			return Object.assign({}, state,{directory:action.directory,children:action.children,parent:action.parent,path:action.path,position:position});
 		case 'SELECT_CHILDREN':
 			var allSelected = true;
 			//setSelectedChildren
@@ -59,7 +62,6 @@ const directory = (state=defaultDirectory,action)=> {
 			}
 		case 'SET_DETAIL':
 			return Object.assign({},state,{detail:action.objArr});
-			
 		default:
 			return state
 	}

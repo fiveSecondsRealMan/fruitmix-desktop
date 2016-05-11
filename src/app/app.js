@@ -34,7 +34,7 @@ const store = configureStore();
 var App = React.createClass({
 	render() {
 		return(
-			<div className="app">
+			<div className="app" onselectstart="return false">
 				<CSS opts={['app',true,true,true,500,5000,5000]}>
 					{this.props.children}
 				</CSS>
