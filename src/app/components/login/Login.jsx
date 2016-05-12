@@ -38,6 +38,10 @@ class Index extends React.Component {
 	}
 
 	componentDidMount() {
+		ipc.on('loggedin',(user)=>{
+			console.log(user);
+			this.props.dispatch(Login.login());
+		});
 	}
 
 	submit() {
@@ -47,9 +51,10 @@ class Index extends React.Component {
 		this.props.dispatch({
 		      type: "LOGIN"
 		})
-		setTimeout( () => {
-			this.props.dispatch(Login.login());
-		},200);
+		// 		setTimeout( () => {
+		// 	this.props.dispatch(Login.login());
+		// },2);
+		ipc.send('login','jowbba','jowaab');
 	}
 
 	render() {

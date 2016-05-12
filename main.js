@@ -4,90 +4,130 @@ var app = require('app');
 var BrowserWindow = require('browser-window');
 var globalShortcut = require('global-shortcut');
 var configuration = require('./configuration');
+var request = require('superagent');
 var ipc = require('ipc');
 var fs = require ('fs');
 var mainWindow = null;
+var user = {};
 var allFiles = null;
 var currentDirectory = {};
 var children = [];
 var parent = {};
 var path = [];
 
+
 app.on('ready', function() {
-        if (!configuration.readSettings('shortcutKeys')) {
-        configuration.saveSettings('shortcutKeys', ['ctrl', 'shift']);
-        }
-        mainWindow = new BrowserWindow({
-            frame: false,
-            height: 968,
-            resizable: false,
-            width: 1666
-        });
-        mainWindow.webContents.openDevTools();
-        mainWindow.loadUrl('file://' + __dirname + '/ele/index.html');
+	if (!configuration.readSettings('shortcutKeys')) {
+		configuration.saveSettings('shortcutKeys', ['ctrl', 'shift']);
+	}
+	mainWindow = new BrowserWindow({
+		frame: true,
+		height: 968,
+		resizable: false,
+		width: 1666
+	});
+	mainWindow.webContents.openDevTools();
+	mainWindow.loadUrl('file://' + __dirname + '/ele/index.html');
+});
+
+ipc.on('login',function(event,username,password){
+	login().then((data)=>{
+		user = Object.assign({},user,data[0]);
+		return getToken(data[0].uuid)
+	}).then((token)=>{
+		user = Object.assign({},user,token);
+		mainWindow.webContents.send('loggedin',user);
+	});
 });
 
 ipc.on('getRootData', ()=> {
-        fs.readFile('data.json', function (err, data) {
-        allFiles = data = eval(data.toString());
-        children = data.filter(item=>item.parent=='');
-        children = children.map((item)=>Object.assign({},{checked:false},item));
-        path.length = 0;
-        path.push({key:'',value:{}});
-        mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
-        });
+	fs.readFile('data.json', function (err, data) {
+		allFiles = data = eval(data.toString());
+		children = data.filter(item=>item.parent=='');
+		children = children.map((item)=>Object.assign({},{checked:false},item));
+		path.length = 0;
+		path.push({key:'',value:{}});
+		mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
+	});
 });
 
 ipc.on('enterChildren', (event,selectItem) => {
-    //parent
-    var parentUUID = selectItem.parent;
-    var parentObj = {};
-    if (parentUUID) {
-        for (let item of allFiles) {
-            if (item.uuid == parentUUID) {
-                parentObj = item;
-            }
-        }
-    }
-    parent = Object.assign({},parentObj);
-    //currentDirectory
-    currentDirectory = Object.assign({},selectItem);
-    //children
-    children.length = 0;
-    for (let item of allFiles) {
-        if (item.parent == selectItem.uuid) {
-            children.push(item);
-        }
-    }
-    children = children.map((item)=>Object.assign({},{checked:false},item));
-    //path
-    try {
-        path.length = 0;
-        var pathArr = selectItem.path.split('/');
-        var pathObj = [];
-        var getParentPath = function (obj) {
-            pathObj.unshift(obj);
-            if (obj.parent) {
-                for (let item of allFiles) {
-                    if (item.uuid == obj.parent) {
-                        getParentPath(item);
-                    }
-                }
-            }else {
-                pathObj.unshift({});
-            }
-        }
-        getParentPath(selectItem);
-        for (let i = 0;i<pathArr.length;i++) {
-            path.push({key:pathArr[i],value:pathObj[i]});
-        }
-    }catch(e) {
-        console.log(e);        
-        path.length=0;
-    }finally {
-        mainWindow.webContents.send('receive',currentDirectory,children,parent,path);
-    }
+	//parent
+	var parentUUID = selectItem.parent;
+	var parentObj = {};
+	if (parentUUID) {
+		for (let item of allFiles) {
+			if (item.uuid == parentUUID) {
+				parentObj = item;
+			}
+		}
+	}
+	parent = Object.assign({},parentObj);
+	//currentDirectory
+	currentDirectory = Object.assign({},selectItem);
+	//children
+	children.length = 0;
+	for (let item of allFiles) {
+		if (item.parent == selectItem.uuid) {
+			children.push(item);
+		}
+	}
+	children = children.map((item)=>Object.assign({},{checked:false},item));
+	//path
+	try {
+		path.length = 0;
+		var pathArr = selectItem.path.split('/');
+		var pathObj = [];
+		var getParentPath = function (obj) {
+			pathObj.unshift(obj);
+			if (obj.parent) {
+				for (let item of allFiles) {
+					if (item.uuid == obj.parent) {
+						getParentPath(item);
+					}
+				}
+			}else {
+				pathObj.unshift({});
+			}
+		}
+		getParentPath(selectItem);
+		for (let i = 0;i<pathArr.length;i++) {
+			path.push({key:pathArr[i],value:pathObj[i]});
+		}
+	}catch(e) {
+		console.log(e);        
+		path.length=0;
+	}finally {
+		mainWindow.webContents.send('receive',currentDirectory,children,parent,path);
+	}
 });
+
+function login(username,password) {
+	let login = new Promise((resolve,reject)=>{
+		request.get('211.144.201.201:8888/login').end((err,res)=>{
+			if (res.ok) {
+				resolve(eval(res.body));
+			}else {
+				reject(err);
+			}
+		});
+	});
+	return login;
+}
+function getToken(uuid,password) {
+	let a = new Promise((resolve,reject)=>{
+		request.get('211.144.201.201:8888/token').auth(uuid,'123456' ).end((err,res)=>{
+			if (res.ok) {
+				console.log('res');
+				resolve(eval(res.body));
+			}else {
+				console.log('err');
+				reject(err);
+			}
+		});
+	});
+	return a;
+}
 
 // function setGlobalShortcuts() {
 //     globalShortcut.unregisterAll();
