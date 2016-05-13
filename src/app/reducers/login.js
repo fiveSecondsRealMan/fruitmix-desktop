@@ -35,7 +35,8 @@ const loginState = (state = defaultState, action) => {
 			return Object.assign({}, state, {
 				state: 'LOGGEDIN',
 				username: action.username,
-				password: action.password
+				password: action.password,
+				obj:action.obj
 			});
 		default:
 			return state

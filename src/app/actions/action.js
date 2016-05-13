@@ -13,9 +13,10 @@ var actions = {
 	// 	}
 	// }
 
-	login() {
+	login(obj) {
 		return {
-			type: 'LOGGEDIN'
+			type: 'LOGGEDIN',
+			obj: obj
 		}
 	},
 

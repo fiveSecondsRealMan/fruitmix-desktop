@@ -13,8 +13,13 @@
 class Collection extends Component {
 	render() {
 		return (
-			<div>Collection</div>
+			<div><input type="file" onChange={this.upLoadFile.bind(this)}/></div>
 		)
+	}
+
+	upLoadFile(e){
+		console.log(e.nativeEvent.target.files[0]);
+		ipc.send('uploadFile',e.nativeEvent.target.files[0].path);
 	}
 }
 

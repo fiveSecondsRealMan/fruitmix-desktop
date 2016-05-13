@@ -8,6 +8,7 @@ var request = require('superagent');
 var ipc = require('ipc');
 var fs = require ('fs');
 var mainWindow = null;
+var server = '211.144.201.201:8888';
 var user = {};
 var allFiles = null;
 var currentDirectory = {};
@@ -33,7 +34,7 @@ app.on('ready', function() {
 ipc.on('login',function(event,username,password){
 	login().then((data)=>{
 		user = Object.assign({},user,data[0]);
-		return getToken(data[0].uuid)
+		return getToken(data[0].uuid);
 	}).then((token)=>{
 		user = Object.assign({},user,token);
 		mainWindow.webContents.send('loggedin',user);
@@ -102,9 +103,33 @@ ipc.on('enterChildren', (event,selectItem) => {
 	}
 });
 
+ipc.on('getFile',(e,uuid)=>{
+	getFile(uuid).then((data)=>{
+		mainWindow.webContents.send('receiveFile',data);
+	})
+});
+
+ipc.on('uploadFile',(e,file)=>{
+	var data = fs.readFileSync(file);
+	request
+		.post(server+'/files/854237a4-3582-48c1-8420-4536fa4263c7')
+		.set('Authorization',user.type+' '+user.token)
+		.attach('file',file)
+		.end((err,res)=>{
+			if(res.ok) {
+				console.log('res');
+				console.log(res.body);
+			}else{
+				console.log('err');
+				console.log(err);
+			}
+		});
+
+});
+
 function login(username,password) {
 	let login = new Promise((resolve,reject)=>{
-		request.get('211.144.201.201:8888/login').end((err,res)=>{
+		request.get(server+'/login').end((err,res)=>{
 			if (res.ok) {
 				resolve(eval(res.body));
 			}else {
@@ -116,12 +141,10 @@ function login(username,password) {
 }
 function getToken(uuid,password) {
 	let a = new Promise((resolve,reject)=>{
-		request.get('211.144.201.201:8888/token').auth(uuid,'123456' ).end((err,res)=>{
+		request.get(server+'/token').auth(uuid,'123456' ).end((err,res)=>{
 			if (res.ok) {
-				console.log('res');
 				resolve(eval(res.body));
 			}else {
-				console.log('err');
 				reject(err);
 			}
 		});
@@ -129,6 +152,21 @@ function getToken(uuid,password) {
 	return a;
 }
 
+function getFile(uuid) {
+	var file = new Promise((resolve,reject)=>{
+		request
+			.get('192.168.5.132/files/'+uuid)
+			.set('Authorization',user.type+' '+user.token)
+			.end((err,res)=>{
+				if (res.ok) {
+					resolve(eval(res.body));
+				}else {
+					reject(err);
+				}
+			});
+	});
+	return file;
+}
 // function setGlobalShortcuts() {
 //     globalShortcut.unregisterAll();
 

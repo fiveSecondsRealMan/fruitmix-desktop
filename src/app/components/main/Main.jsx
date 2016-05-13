@@ -48,6 +48,10 @@ class Main extends Component {
 		ipc.on('receive',function (dir,children,parent,path) {
 			_this.props.dispatch(Action.setDirctory(dir,children,parent,path));
 		});
+
+		ipc.on('receiveFile',(data)=>{
+			console.log(data);
+		});
 	}
 
 	triggerClick(e) {
