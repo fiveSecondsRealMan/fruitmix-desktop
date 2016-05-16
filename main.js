@@ -42,14 +42,25 @@ ipc.on('login',function(event,username,password){
 });
 
 ipc.on('getRootData', ()=> {
-	fs.readFile('data.json', function (err, data) {
-		allFiles = data = eval(data.toString());
+	// fs.readFile('data.json', function (err, data) {
+	// 	allFiles = data = eval(data.toString());
+	// 	children = data.filter(item=>item.parent=='');
+	// 	children = children.map((item)=>Object.assign({},{checked:false},item));
+	// 	path.length = 0;
+	// 	path.push({key:'',value:{}});
+	// 	mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
+	// });
+
+	getFiles().then((data)=>{
+		allFiles = data;
 		children = data.filter(item=>item.parent=='');
 		children = children.map((item)=>Object.assign({},{checked:false},item));
 		path.length = 0;
 		path.push({key:'',value:{}});
-		mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
+		mainWindow.webContents.send('receive', currentDirectory,children,parent,path);	
 	});
+
+
 });
 
 ipc.on('enterChildren', (event,selectItem) => {
@@ -109,22 +120,74 @@ ipc.on('getFile',(e,uuid)=>{
 	})
 });
 
-ipc.on('uploadFile',(e,file)=>{
-	var data = fs.readFileSync(file);
-	request
-		.post(server+'/files/854237a4-3582-48c1-8420-4536fa4263c7')
-		.set('Authorization',user.type+' '+user.token)
-		.attach('file',file)
-		.end((err,res)=>{
-			if(res.ok) {
-				console.log('res');
-				console.log(res.body);
-			}else{
-				console.log('err');
-				console.log(err);
+ipc.on('uploadFile',(e,file,obj)=>{
+	// var data = fs.readFileSync(file);
+	// request
+	// 	.post(server+'/files/'+currentDirectory.uuid)
+	// 	.set('Authorization',user.type+' '+user.token)
+	// 	.attach('file',file)
+	// 	.end((err,res)=>{
+	// 		if(res.ok) {
+	// 			console.log('res');
+	// 			mainWindow.webContents.send('sendMessage',res)
+	// 		}else{
+	// 			console.log('err');
+	// 			console.log(err);
+	// 		}
+	// 	});
+	mainWindow.webContents.send('sendMessage',file);
+	setTimeout(()=>{
+		for (let item of allFiles) {
+			if (item.uuid == obj.uuid) {
+				item.children.push(file.path);
 			}
+		}
+		allFiles.push({
+			path: obj.path+'/'+file.name,
+			parent: obj.uuid,
+			hash:file.path,
+			checked: false,
+			attribute: {
+				name:file.name,
+				size:file.size	,
+				changetime: "2016-04-25T10:31:52.089Z",
+      				createtime: "2016-04-25T10:31:52.089Z",
+			}
+			
 		});
 
+		if (currentDirectory.uuid == obj.uuid) {
+			console.log(file);
+			children.push({
+				path: obj.path+'/'+file.name,
+				parent: obj.uuid,
+				hash:file.path,
+				checked: false,
+				attribute: {
+					name:file.name,
+					size:file.size	,
+					changetime: "2016-04-25T10:31:52.089Z",
+	      				createtime: "2016-04-25T10:31:52.089Z",
+				}
+			});
+		}
+		mainWindow.webContents.send('uploadSuccess',file,obj,children)
+	},2000);
+});
+
+ipc.on('refresh',(e,uuid)=>{
+	getFiles().then((data)=>{
+		allFiles = data;
+		//children
+		children.length = 0;
+		for (let item of allFiles) {
+			if (item.parent == uuid) {
+				children.push(item);
+			}
+		}
+		children = children.map((item)=>Object.assign({},{checked:false},item));
+		mainWindow.webContents.send('refresh',children);
+	});
 });
 
 function login(username,password) {
@@ -167,6 +230,23 @@ function getFile(uuid) {
 	});
 	return file;
 }
+
+function getFiles() {
+	var files = new Promise((resolve,reject)=>{
+		request
+			.get('192.168.5.132/files')
+			.set('Authorization',user.type+' '+user.token)
+			.end((err,res)=>{
+				if(res.ok) {
+					resolve(eval(res.body));
+				}else {
+					reject(err);
+				}
+			});
+	});
+	return files;
+}
+
 // function setGlobalShortcuts() {
 //     globalShortcut.unregisterAll();
 

@@ -40,7 +40,7 @@ class Index extends React.Component {
 	componentDidMount() {
 		ipc.on('loggedin',(user)=>{
 			this.props.dispatch(Login.login(user));
-			ipc.send('getFile','3e04af9e-4148-45ad-a60d-fbbe32d000f7');
+			// ipc.send('getFile','3e04af9e-4148-45ad-a60d-fbbe32d000f7');
 		});
 	}
 

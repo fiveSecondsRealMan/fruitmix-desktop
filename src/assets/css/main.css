@@ -78,6 +78,7 @@
 
 }
 .file-area {
+	width:100%;
 	overflow-x:hidden;
 	height:100%;
 	padding-top:8px;
@@ -90,6 +91,9 @@
 }
 .all-files-container {
 	position: relative;
+}
+.upload-input{
+	display: none;
 }
 /*table*/
 .allFileTable {
@@ -180,6 +184,11 @@
 .bezierTransition1.open,.bezierTransition2.open {
 	transform: scale(1); 
 	opacity: 0; 
+}
+.data-loading {
+	position: absolute;
+	top:50%;
+	margin-left:-35px;
 }
 /*Menu*/
 .MenuContainer {

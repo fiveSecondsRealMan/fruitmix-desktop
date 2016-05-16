@@ -7,7 +7,8 @@ const defaultDirectory = {
 	selectAll:false, 
 	position:[],
 	menu:{show:false,objArr:[]},
-	detail:[]
+	detail:[],
+	upload:[]
 }
 
 const directory = (state=defaultDirectory,action)=> {
@@ -16,7 +17,7 @@ const directory = (state=defaultDirectory,action)=> {
 			let position = action.children.map((item,index)=>{
 				return {top:index*51+58+48+8+64,bottom:(index+1)*51+58+48+8+64}
 			})
-			return Object.assign({}, state,{directory:action.directory,children:action.children,parent:action.parent,path:action.path,position:position});
+			return Object.assign({}, state,{directory:action.directory,children:action.children,parent:action.parent,path:action.path,position:position,state:'READY'});
 		case 'SELECT_CHILDREN':
 			var allSelected = true;
 			//setSelectedChildren
@@ -62,6 +63,28 @@ const directory = (state=defaultDirectory,action)=> {
 			}
 		case 'SET_DETAIL':
 			return Object.assign({},state,{detail:action.objArr});
+		case 'FILES_LOADING':
+			return Object.assign({},state,{state:'BUSY'});
+		case 'CLEAN_DETAIL':
+			return Object.assign({},state,{detail:[]});
+		case 'ADD_UPLOAD':
+			var upload = state.upload.concat([action.obj]);
+			return Object.assign({},state,{upload:upload});
+		case 'REFRESH_DIR':
+			var position = action.obj.map((item,index)=>{
+				return {top:index*51+58+48+8+64,bottom:(index+1)*51+58+48+8+64}
+			})
+			return Object.assign({},state,{children:action.obj,position:position});
+		case 'REMOVE':
+		var a;
+		console.log(state.upload);
+			for (var i=0;i<state.upload.length;i++) {
+				if (state.upload[i].path == action.obj.path) {
+					a = state.upload.slice(i,1);
+					break
+				}
+			}
+			return Object.assign({},state,{upload:a});
 		default:
 			return state
 	}

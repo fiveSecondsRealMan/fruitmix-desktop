@@ -94,6 +94,39 @@ var actions = {
 		return {
 			type: 'MOUSE_UP'
 		}
+	},
+
+	filesLoading() {
+		return {
+			type: 'FILES_LOADING'
+		}
+	},
+
+	cleanDetail() {
+		return {
+			type: 'CLEAN_DETAIL'
+		}
+	},
+
+	addUpload(obj) {
+		return {
+			type: 'ADD_UPLOAD',
+			obj: obj
+		}
+	},
+
+	refreshDir(obj) {
+		return {
+			type: 'REFRESH_DIR',
+			obj: obj
+		}
+	},
+
+	removeFile(obj) {
+		return {
+			type: 'REMOVE',
+			obj: obj
+		}
 	}
 
 

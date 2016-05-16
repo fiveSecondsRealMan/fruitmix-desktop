@@ -76,7 +76,13 @@ const blackFrame = ()=> (
 	)
 const select = ()=> (
 	<svg viewBox="0 0 24 24" className="select-svg">
-	<path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+		<path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+	</svg>
+	)
+const add = ()=> (
+	<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+	    	<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+	    	<path d="M0 0h24v24H0z" fill="none"/>
 	</svg>
 	)
 
@@ -92,7 +98,8 @@ const SVGIcon = {
 	home:home,
 	back:back,
 	blackFrame:blackFrame,
-	select:select
+	select:select,
+	add:add
 }
 
 export default SVGIcon

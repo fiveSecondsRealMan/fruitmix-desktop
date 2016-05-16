@@ -45,12 +45,29 @@ class Main extends Component {
 	componentDidMount() {
 		var _this = this;
 		ipc.send('getRootData');
+		this.props.dispatch(Action.filesLoading());
 		ipc.on('receive',function (dir,children,parent,path) {
 			_this.props.dispatch(Action.setDirctory(dir,children,parent,path));
 		});
 
 		ipc.on('receiveFile',(data)=>{
 			console.log(data);
+		});
+
+		ipc.on('refresh',(data)=>{
+			console.log('refresh')
+			console.log(data);
+		});
+
+		ipc.on('sendMessage',(data)=>{
+			console.log(data);
+		});
+
+		ipc.on('uploadSuccess',(file,dir,obj)=>{
+			// this.props.dispatch(Action.removeFile(obj));
+			if (dir.uuid == this.props.data.directory.uuid) {
+				this.props.dispatch(Action.refreshDir(obj));
+			}
 		});
 	}
 
@@ -91,7 +108,7 @@ class Main extends Component {
 
 	mouseMove(e) {
 		 e.preventDefault(); e.stopPropagation();
-		if (this.props.multiple.multiple.isShow == true) {
+		if (this.props.multiple.multiple.isShow == true&&this.props.data.state != 'BUSY') {
 			this.props.dispatch(Action.mouseMove(e.nativeEvent.x,e.nativeEvent.y));
 			let mul = this.props.multiple.multiple;
  			let height = Math.abs(mul.top-mul.height);;
