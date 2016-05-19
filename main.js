@@ -42,15 +42,6 @@ ipc.on('login',function(event,username,password){
 });
 
 ipc.on('getRootData', ()=> {
-	// fs.readFile('data.json', function (err, data) {
-	// 	allFiles = data = eval(data.toString());
-	// 	children = data.filter(item=>item.parent=='');
-	// 	children = children.map((item)=>Object.assign({},{checked:false},item));
-	// 	path.length = 0;
-	// 	path.push({key:'',value:{}});
-	// 	mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
-	// });
-
 	getFiles().then((data)=>{
 		allFiles = data;
 		children = data.filter(item=>item.parent=='');
@@ -121,58 +112,35 @@ ipc.on('getFile',(e,uuid)=>{
 });
 
 ipc.on('uploadFile',(e,file,obj)=>{
-	// var data = fs.readFileSync(file);
-	// request
-	// 	.post(server+'/files/'+currentDirectory.uuid)
-	// 	.set('Authorization',user.type+' '+user.token)
-	// 	.attach('file',file)
-	// 	.end((err,res)=>{
-	// 		if(res.ok) {
-	// 			console.log('res');
-	// 			mainWindow.webContents.send('sendMessage',res)
-	// 		}else{
-	// 			console.log('err');
-	// 			console.log(err);
-	// 		}
-	// 	});
-	mainWindow.webContents.send('sendMessage',file);
-	setTimeout(()=>{
-		for (let item of allFiles) {
-			if (item.uuid == obj.uuid) {
-				item.children.push(file.path);
+	request
+		.post(server+'/files/'+currentDirectory.uuid+'?type=file')
+		.set('Authorization',user.type+' '+user.token)
+		.attach('file',file.path)  
+		.end((err,res)=>{
+			if(res.ok) {
+				console.log('res');
+				modifyData(file,obj,res.body);
+			}else{
+				console.log('err');
 			}
-		}
-		allFiles.push({
-			path: obj.path+'/'+file.name,
-			parent: obj.uuid,
-			hash:file.path,
-			checked: false,
-			attribute: {
-				name:file.name,
-				size:file.size	,
-				changetime: "2016-04-25T10:31:52.089Z",
-      				createtime: "2016-04-25T10:31:52.089Z",
-			}
-			
 		});
+});
 
-		if (currentDirectory.uuid == obj.uuid) {
-			console.log(file);
-			children.push({
-				path: obj.path+'/'+file.name,
-				parent: obj.uuid,
-				hash:file.path,
-				checked: false,
-				attribute: {
-					name:file.name,
-					size:file.size	,
-					changetime: "2016-04-25T10:31:52.089Z",
-	      				createtime: "2016-04-25T10:31:52.089Z",
-				}
-			});
-		}
-		mainWindow.webContents.send('uploadSuccess',file,obj,children)
-	},2000);
+ipc.on('upLoadFolder',(e,name,dir)=>{
+	request
+		.post(server+'/files/'+dir.uuid+'?type=folder')
+		.set('Authorization',user.type+' '+user.token)
+		.send({foldername:name})
+		.end((err,res)=>{
+			if (res.ok) {
+				console.log('res');
+				console.log(res);
+				modifyFolder(name,dir,res.body);
+			}else {
+				console.log('err');
+				console.log(err);
+			}
+		})
 });
 
 ipc.on('refresh',(e,uuid)=>{
@@ -188,6 +156,25 @@ ipc.on('refresh',(e,uuid)=>{
 		children = children.map((item)=>Object.assign({},{checked:false},item));
 		mainWindow.webContents.send('refresh',children);
 	});
+});
+
+ipc.on('delete',(e,objArr,dir)=>{
+	for (let item of objArr) {
+		deleteFile(item).then(()=>{
+			//delete file in data
+			let index = allFiles.findIndex((value)=>{
+				return value.uuid == item.uuid
+			})
+			if (index != -1) {
+				allFiles.splice(index,1);
+			}
+			//delete file in children
+			let index2 = children.findIndex((value)=>value.uuid == item.uuid);
+			if (index2 != -1) {children.splice(index2,1)}
+			
+			mainWindow.webContents.send('deleteSuccess',item,children,dir);
+		});
+	}
 });
 
 function login(username,password) {
@@ -246,6 +233,81 @@ function getFiles() {
 	});
 	return files;
 }
+
+function deleteFile(obj) {
+	var deleteF = new Promise((resolve,reject)=>{
+			request
+				.delete(server+'/files/'+obj.uuid)
+				.set('Authorization',user.type+' '+user.token)
+				.end((err,res)=>{
+					if (res.ok) {
+						console.log('res');
+						resolve();
+					}else {
+						console.log('err');
+						console.log(err);
+						reject();
+					}
+				});
+	});
+	return deleteF;
+}
+
+function modifyData(file,obj,uuid) {
+	//modify allfiles
+		for (let item of allFiles) {
+			if (item.uuid == obj.uuid) {
+				item.children.push(uuid);
+				break;
+			}
+		}
+
+		var obj = {
+			uuid:uuid,
+			path: obj.path+'/'+file.name,
+			parent: obj.uuid,
+			hash:file.path,
+			checked: false,
+			attribute: {
+				name:file.name,
+				size:file.size	,
+				changetime: "2016-04-25T10:31:52.089Z",
+      				createtime: "2016-04-25T10:31:52.089Z",
+			}
+		}
+		allFiles.push(obj);
+		if (currentDirectory.uuid == obj.uuid) {
+			children.push(obj);
+		}
+		mainWindow.webContents.send('uploadSuccess',file,obj,children)
+}
+	
+	function modifyFolder(name,dir,folderuuid) {
+		for (let item of allFiles) {
+			if (item.uuid == dir.uuid) {
+				item.children.push(folderuuid);
+				break;
+			}
+		}
+		let obj = {
+			uuid:folderuuid,
+			path: dir.path+'/'+name,
+			parent: dir.uuid,
+			hash:dir.path+'/'+name,
+			checked: false,
+			attribute: {
+				name:name,
+				size:null	,
+				changetime: "2016-04-25T10:31:52.089Z",
+      				createtime: "2016-04-25T10:31:52.089Z",
+			}
+		}
+		allFiles.push(obj);
+		if (currentDirectory.uuid == dir.uuid) {
+			children.push(obj);
+		}
+		mainWindow.webContents.send('uploadSuccess',name,dir,children)
+	}
 
 // function setGlobalShortcuts() {
 //     globalShortcut.unregisterAll();

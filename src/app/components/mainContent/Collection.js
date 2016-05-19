@@ -13,7 +13,7 @@
 class Collection extends Component {
 	render() {
 		return (
-			<div></div>
+			<p contenteditable="true">1121</p>
 		)
 	}
 

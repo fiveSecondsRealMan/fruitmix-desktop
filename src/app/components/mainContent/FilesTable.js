@@ -47,7 +47,7 @@ class AllFilesTable extends Component {
 										<div></div>
 									</div>
 								</td>
-								<td title={item.attribute.name}>{item.attribute.name}</td>
+								<td title={item.attribute.name}><div data-uuid={item.uuid}>{item.attribute.name}</div></td>
 								<td title={item.attribute.changetime}>{item.attribute.changetime}</td>
 								<td title={item.attribute.size}>{item.attribute.size}</td>
 							</tr>

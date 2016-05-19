@@ -9,7 +9,9 @@
  import React, { findDOMNode, Component, PropTypes } from 'react';
  import { connect, bindActionCreators } from 'react-redux';
  //require material
-import { Paper, Menu, MenuItem } from 'material-ui';
+import { Paper, Menu, MenuItem,RaisedButton } from 'material-ui';
+//import Action
+import Action from '../../actions/action';
 
  class Detail extends Component {
  	render() {
@@ -30,12 +32,16 @@ import { Paper, Menu, MenuItem } from 'material-ui';
 	 				<div>createtime&nbsp;&nbsp;:&nbsp;&nbsp;{data.attribute.createtime||null}</div>
 	 				<div>updatetime&nbsp;&nbsp;:&nbsp;&nbsp;{data.attribute.changetime||null}</div>
 	 				<div>shared to&nbsp;&nbsp;:&nbsp;&nbsp;</div>
-	 			</div>
+	 				<RaisedButton label="close" onMouseUp={this.closeDetail.bind(this)} style={{}}/>
+	 			</div> 
 	 			)
  		}else {
  			return false
  		}
- 		
+ 	}
+
+ 	closeDetail() {
+ 		this.props.dispatch(Action.cleanDetail());
  	}
  }
 

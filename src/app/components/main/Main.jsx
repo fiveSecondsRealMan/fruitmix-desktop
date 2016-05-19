@@ -63,18 +63,29 @@ class Main extends Component {
 			console.log(data);
 		});
 
-		ipc.on('uploadSuccess',(file,dir,obj)=>{
+		ipc.on('uploadSuccess',(file,dir,children)=>{
 			// this.props.dispatch(Action.removeFile(obj));
 			if (dir.uuid == this.props.data.directory.uuid) {
-				this.props.dispatch(Action.refreshDir(obj));
+				this.props.dispatch(Action.refreshDir(children));
+			}
+		});
+
+		ipc.on('deleteSuccess',(obj,children,dir)=>{
+			console.log('deleteSuccess');
+			console.log(obj);
+			console.log(children);
+			console.log(dir);
+			if (dir.uuid == this.props.data.directory.uuid) {
+				console.log('enter');
+				this.props.dispatch(Action.refreshDir(children));
 			}
 		});
 	}
 
 	triggerClick(e) {
-		if (this.props.data.menu.show) {
-			this.props.dispatch(Action.toggleMenu());
-		}
+		// if (this.props.data.menu.show) {
+		// 	this.props.dispatch(Action.toggleMenu());
+		// }
 	}
 
 	render() {
@@ -99,7 +110,7 @@ class Main extends Component {
 					<LeftNav nav={this.props.navigation} dispatch={this.props.dispatch}/>
 				</Drawer>
 				{/*Content*/}
-				<Paper className={"content-container "+(this.props.navigation.menu?'content-has-left-padding':'no-padding')} style={{paddingTop:64}} zDepth={0} onClick={this.triggerClick.bind(this)}>
+				<Paper className={"content-container "+(this.props.navigation.menu?'content-has-left-padding':'no-padding')} style={{paddingTop:64}} zDepth={0}>
 					<Content nav={this.props.navigation.nav}></Content>
 				</Paper>
 			</div></CSS>

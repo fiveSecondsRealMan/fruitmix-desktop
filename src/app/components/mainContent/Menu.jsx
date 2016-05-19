@@ -32,11 +32,11 @@ class PopMenu extends Component {
 				<Paper zDepth={2}>
 					<Menu className='menu-list' desktop={true} autoWidth={false}>
 						<MenuItem primaryText='详细信息' onTouchTap={this.detail.bind(this)}></MenuItem>
-						<MenuItem primaryText='重命名' onTouchTap={this.rename.bind(this)}></MenuItem>
+						<MenuItem primaryText='重命名' onClick={this.rename.bind(this)}></MenuItem>
 						<MenuItem primaryText='移至' onTouchTap={this.moveto.bind(this)}></MenuItem>
 						<MenuItem primaryText='分享' onTouchTap={this.share.bind(this)}></MenuItem>
-						<MenuItem primaryText='保存' onTouchTap={this.save.bind(this)}></MenuItem>
-						<MenuItem primaryText='收藏' onTouchTap={this.collect.bind(this)}></MenuItem>
+						<MenuItem primaryText='删除' onTouchTap={this.remove.bind(this)}></MenuItem>
+						<MenuItem primaryText='收藏' onTouchTap={this.collect.bind(this)}></MenuItem> 
 					</Menu>
 				</Paper>
 			</div>
@@ -48,7 +48,43 @@ class PopMenu extends Component {
 	}
 
 	rename() {
+		this.props.dispatch(Action.toggleMenu());
+		let uuid = this.props.data.menu.objArr[0].uuid;
+		let dom = $('div[data-uuid='+uuid+']')[0];
+		var editor = dom;
+		$('div[data-uuid='+uuid+']').attr('contenteditable','true').focus(function(){
+			var sel,range;
+			if (window.getSelection && document.createRange) {
+				console.log('focus1');
+				range = document.createRange();
+				range.selectNodeContents(editor);
+				range.collapse(true);
+				range.setEnd(editor, editor.childNodes.length);
+				range.setStart(editor, 0);
+				sel = window.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+			} else if (document.body.createTextRange) {
+				console.log('focus2');
+				range = document.body.createTextRange();
+				range.moveToElementText(editor);
+				range.collapse(true);
+				range.select();
+			}
+		}).blur(function() {
+			console.log('aaaaaaaaaaa');
+			$(this).attr('contenteditable','false')
+		});
+		// dom.focus();
+		// var time = setInterval(function() {
+		// 	dom.focus();
+		// },10);
 
+		setTimeout(function(){
+			dom.focus();
+		},0)
+
+		// setTimeout(function(){clearInterval(time)},100)
 	}
 
 	moveto() {
@@ -59,12 +95,25 @@ class PopMenu extends Component {
 
 	}
 
-	save() {
-
+	remove() {
+		var arr = [];
+		arr.push(this.props.data.menu.objArr[0]);
+		for (let item of this.props.data.children) {
+			if (item.checked&&item.uuid!=arr[0].uuid) {
+				arr.push(item);
+			}
+		}
+		ipc.send('delete',arr,this.props.data.directory);
 	}
 
 	collect() {
 
+	}
+
+	triggerClick(e) {
+		if (this.props.data.menu.show) {
+			this.props.dispatch(Action.toggleMenu());
+		}
 	}
 }
 

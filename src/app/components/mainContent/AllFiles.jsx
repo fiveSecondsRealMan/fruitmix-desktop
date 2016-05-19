@@ -9,7 +9,7 @@
  import React, { findDOMNode, Component, PropTypes } from 'react';
  import { connect, bindActionCreators } from 'react-redux';
 //require material
-import { Paper, FontIcon, SvgIcon,Snackbar } from 'material-ui';
+import { Paper, FontIcon, SvgIcon,Snackbar, IconMenu, MenuItem, Dialog, FlatButton, RaisedButton, TextField } from 'material-ui';
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import { CircularProgress } from 'material-ui'
 import {blue500, red500, greenA200} from 'material-ui/styles/colors';
@@ -26,12 +26,35 @@ class AllFiles extends Component {
 		var _this = this;
 		var children = this.props.data.children;
 		var content = this.getTable();
+
+		const actions = [
+		      <FlatButton
+		        label="Cancel"
+		        primary={true}
+		        onTouchTap={this.toggleUploadFolder.bind(this,false)}
+		      />,
+		      <FlatButton
+		        label="Submit"
+		        primary={true}
+		        keyboardFocused={true}
+		        onTouchTap={this.upLoadFolder.bind(this)}
+		      />,
+		    ];
 		return (
 			<div className='all-my-files' style={{height:(document.body.clientHeight-64)+'px'}}>
 				{content}
 				<Paper className='file-detail' style={{width:this.props.data.detail.length==0?'0px':'350px'}}>
 					<Detail></Detail>
 				</Paper>
+				<Dialog
+			          title="create folder"
+			          actions={actions}
+			          modal={false}
+			          open={this.props.data.dialogOfFolder}
+			          onRequestClose={this.handleClose}
+			        >
+			          <TextField hintText="folder name" id='folder-name'/>
+			        </Dialog>
 			</div>
 		)
 	}
@@ -49,7 +72,6 @@ class AllFiles extends Component {
 					<span style={{marginRight:5}}>></span>
 				</span>
 			));
-		pathArr.push(<span style={{display:'flex',alignItems:'center',marginRight:10}} onClick={this.openInputFile.bind(this)}>{svg.add()}</span>);
 		return pathArr;
 
 	}
@@ -85,6 +107,11 @@ class AllFiles extends Component {
 	}
 
 	getTable() {
+		const listStyle = {
+			height: 48,
+			lineHeight:'48px'
+		}
+
 		if (this.props.data.state=='BUSY') {
 			return (<div className='data-loading '><CircularProgress/></div>)
 		}else {
@@ -96,6 +123,15 @@ class AllFiles extends Component {
 						{svg['back']()}
 						</SvgIcon>
 						{this.getBreadCrumb()}
+
+						<IconMenu style={{display:'flex',alignItems:'center',marginRight:10}}
+						      iconButtonElement={<span>{svg.add()}</span>}
+						      anchorOrigin={{horizontal: 'left', vertical: 'top'}}
+						      targetOrigin={{horizontal: 'left', vertical: 'top'}}
+						    >
+						    	<MenuItem innerDivStyle={listStyle} primaryText="createFolder" onClick={this.toggleUploadFolder.bind(this,true)}/>
+							<MenuItem innerDivStyle={listStyle} primaryText="upLoadFile" onClick={this.openInputFile.bind(this)}/>
+						</IconMenu>
 					</div>
 					<div className="all-files-container">
 						<FilesTable/>
@@ -122,15 +158,24 @@ class AllFiles extends Component {
 				size:f.size,
 				lastModifiedDate:f.lastModifiedDate
 			}
-			console.log(e.nativeEvent.target.files[i]);
 			this.props.dispatch(Action.addUpload(e.nativeEvent.target.files[i]));
 			ipc.send('uploadFile',file,this.props.data.directory);	
 		}
 		
 	}
 
+	upLoadFolder() {
+		let name = $('#folder-name')[0].value;
+		ipc.send('upLoadFolder',name,this.props.data.directory);
+		this.toggleUploadFolder(false);
+	}
+
 	openInputFile() {
 		$('.upload-input').trigger('click');
+	}
+
+	toggleUploadFolder(b) {
+		this.props.dispatch(Action.toggleDialogOfUploadFolder(b));
 	}
 }
 

@@ -127,6 +127,14 @@ var actions = {
 			type: 'REMOVE',
 			obj: obj
 		}
+	},
+
+	toggleDialogOfUploadFolder(open) {
+		return {
+			type: 'TOGGLE_DIALOG_FOLDER',
+			isOpen: open
+
+		}
 	}
 
 

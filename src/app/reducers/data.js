@@ -8,7 +8,8 @@ const defaultDirectory = {
 	position:[],
 	menu:{show:false,objArr:[]},
 	detail:[],
-	upload:[]
+	upload:[],
+	dialogOfFolder: false
 }
 
 const directory = (state=defaultDirectory,action)=> {
@@ -59,7 +60,7 @@ const directory = (state=defaultDirectory,action)=> {
 				
 			}else {
 				//close menu
-				return Object.assign({},state,{menu:{show:false,obj:[]}});
+				return Object.assign({},state,{menu:{show:false,objArr:[]}});
 			}
 		case 'SET_DETAIL':
 			return Object.assign({},state,{detail:action.objArr});
@@ -85,6 +86,8 @@ const directory = (state=defaultDirectory,action)=> {
 				}
 			}
 			return Object.assign({},state,{upload:a});
+		case 'TOGGLE_DIALOG_FOLDER':
+			return Object.assign({},state,{dialogOfFolder:action.isOpen});
 		default:
 			return state
 	}
