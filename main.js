@@ -9,6 +9,7 @@ var ipc = require('ipc');
 var fs = require ('fs');
 var mainWindow = null;
 var server = '211.144.201.201:8888';
+server ='192.168.5.132';
 var user = {};
 var allFiles = null;
 var currentDirectory = {};
@@ -117,13 +118,26 @@ ipc.on('uploadFile',(e,file,obj)=>{
 		.set('Authorization',user.type+' '+user.token)
 		.attach('file',file.path)  
 		.end((err,res)=>{
+			res.on('data',function() {
+				console.log('111');
+			});
+			console.log(res);
+			console.log(err);
 			if(res.ok) {
 				console.log('res');
 				modifyData(file,obj,res.body);
 			}else{
+				console.log(err);
 				console.log('err');
 			}
 		});
+
+		// var stream = fs.createReadStream(file.path);
+		// var req = request
+		// .post(server+'/files/'+currentDirectory.uuid+'?type=file')
+		// .set('Authorization',user.type+' '+user.token);
+
+		// stream.pipe(req);
 });
 
 ipc.on('upLoadFolder',(e,name,dir)=>{
@@ -176,6 +190,21 @@ ipc.on('delete',(e,objArr,dir)=>{
 		});
 	}
 });
+
+ipc.on('rename',(e,uuid,name,oldName)=>{
+	rename(uuid,name,oldName).then(()=>{
+		console.log('ok');
+	})
+})
+
+ipc.on('dowload',(e,arr)=>{
+	for (let item of arr) {
+		dowload(item).then(data=>{
+			var stream = fs.createWriteStream('item.attribute.name');
+			data.pipe(stream);
+		});
+	}
+})
 
 function login(username,password) {
 	let login = new Promise((resolve,reject)=>{
@@ -253,6 +282,47 @@ function deleteFile(obj) {
 	return deleteF;
 }
 
+function rename(uuid,name,oldName) {
+	let rename = new Promise((resolve,reject)=>{
+		request
+			.patch(server+'/files/'+uuid)
+			.set('Authorization',user.type+' '+user.token)
+			.send({filename:name})
+			.end((err,res)=>{
+				if (res.ok) {
+					console.log('res');
+				}else {
+					console.log(err);
+				}
+			})
+	});
+	return rename;
+}
+
+function dowload(item) {
+	var dowload = new Promise((resolve,reject)=>{
+		request
+			.get(server+'/files/'+item.uuid+'?type=media')
+			.set('Accept','application/json')
+			.set('Authorization',user.type+' '+user.token)
+			.set('Content-Type','text/plain')
+			.end((err,res)=>{
+				res.on('data',function(){
+					console.log('11');
+				});
+				if (res.ok) {
+					console.log('res');
+					resolve(res.body);
+
+				}else {
+					console.log(err);
+					console.log('err');
+				}
+			});
+	})
+		return dowload;
+	}
+
 function modifyData(file,obj,uuid) {
 	//modify allfiles
 		for (let item of allFiles) {
@@ -308,6 +378,8 @@ function modifyData(file,obj,uuid) {
 		}
 		mainWindow.webContents.send('uploadSuccess',name,dir,children)
 	}
+
+
 
 // function setGlobalShortcuts() {
 //     globalShortcut.unregisterAll();

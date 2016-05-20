@@ -83,14 +83,14 @@ class Main extends Component {
 	}
 
 	triggerClick(e) {
-		// if (this.props.data.menu.show) {
-		// 	this.props.dispatch(Action.toggleMenu());
-		// }
+		if (this.props.data.menu.show) {
+			this.props.dispatch(Action.toggleMenu());
+		}
 	}
 
 	render() {
 		return (<CSS opts={['app',true,true,true,500,5000,5000]}>
-			<div className="main" key='main' onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)}>
+			<div className="main" key='main' onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)} onClick={this.triggerClick.bind(this)}>
 				{/*Bar*/}
 				<Multiple/>
 				<AppBar 

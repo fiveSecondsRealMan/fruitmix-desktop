@@ -36,7 +36,7 @@ class PopMenu extends Component {
 						<MenuItem primaryText='移至' onTouchTap={this.moveto.bind(this)}></MenuItem>
 						<MenuItem primaryText='分享' onTouchTap={this.share.bind(this)}></MenuItem>
 						<MenuItem primaryText='删除' onTouchTap={this.remove.bind(this)}></MenuItem>
-						<MenuItem primaryText='收藏' onTouchTap={this.collect.bind(this)}></MenuItem> 
+						<MenuItem primaryText='下载' onClick={this.dowload.bind(this)}></MenuItem> 
 					</Menu>
 				</Paper>
 			</div>
@@ -48,9 +48,9 @@ class PopMenu extends Component {
 	}
 
 	rename() {
-		this.props.dispatch(Action.toggleMenu());
 		let uuid = this.props.data.menu.objArr[0].uuid;
 		let dom = $('div[data-uuid='+uuid+']')[0];
+		let oldName = dom.innerHTML;
 		var editor = dom;
 		$('div[data-uuid='+uuid+']').attr('contenteditable','true').focus(function(){
 			var sel,range;
@@ -72,8 +72,9 @@ class PopMenu extends Component {
 				range.select();
 			}
 		}).blur(function() {
-			console.log('aaaaaaaaaaa');
-			$(this).attr('contenteditable','false')
+			$(this).attr('contenteditable','false');
+			let name = dom.innerHTML;
+			ipc.send('rename',uuid,name,oldName);
 		});
 		// dom.focus();
 		// var time = setInterval(function() {
@@ -106,8 +107,15 @@ class PopMenu extends Component {
 		ipc.send('delete',arr,this.props.data.directory);
 	}
 
-	collect() {
-
+	dowload() {
+		let arr = [];
+		arr.push(this.props.data.menu.objArr[0]);
+		// for (let item of this.props.data.children) {
+		// 	if (item.checked&&item.uuid!=arr[0].uuid) {
+		// 		arr.push(item);
+		// 	}
+		// }
+		ipc.send('dowload',arr);
 	}
 
 	triggerClick(e) {
