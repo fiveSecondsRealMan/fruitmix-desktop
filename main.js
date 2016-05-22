@@ -5,11 +5,12 @@ var BrowserWindow = require('browser-window');
 var globalShortcut = require('global-shortcut');
 var configuration = require('./configuration');
 var request = require('superagent');
+var http = require('http');
 var ipc = require('ipc');
 var fs = require ('fs');
 var mainWindow = null;
 var server = '211.144.201.201:8888';
-server ='192.168.5.132';
+// server ='192.168.5.132';
 var user = {};
 var allFiles = null;
 var currentDirectory = {};
@@ -19,14 +20,29 @@ var path = [];
 
 
 app.on('ready', function() {
+	// var options = {
+	// 	hostname: '211.144.201.201',
+	// 	port: 8888,
+	// 	path: '/',
+	// 	method: 'GET'
+	// };
+	// var req = http.request(options,function(res){
+	// 	console.log('status: ' + res.statusCode);
+	// 	console.log('HEADERS: ' + JSON.stringify(res.headers));
+	// 	res.setEncoding('utf8');
+	// 	res.on('data',function(chunk) {
+	// 		console.log(chunk);
+	// 	});
+	// })
+	// req.end();
 	if (!configuration.readSettings('shortcutKeys')) {
 		configuration.saveSettings('shortcutKeys', ['ctrl', 'shift']);
 	}
 	mainWindow = new BrowserWindow({
 		frame: true,
-		height: 968,
+		height: 768,
 		resizable: false,
-		width: 1666
+		width: 1366
 	});
 	mainWindow.webContents.openDevTools();
 	mainWindow.loadUrl('file://' + __dirname + '/ele/index.html');
@@ -113,6 +129,7 @@ ipc.on('getFile',(e,uuid)=>{
 });
 
 ipc.on('uploadFile',(e,file,obj)=>{
+	console.log(file);
 	request
 		.post(server+'/files/'+currentDirectory.uuid+'?type=file')
 		.set('Authorization',user.type+' '+user.token)
@@ -121,8 +138,6 @@ ipc.on('uploadFile',(e,file,obj)=>{
 			res.on('data',function() {
 				console.log('111');
 			});
-			console.log(res);
-			console.log(err);
 			if(res.ok) {
 				console.log('res');
 				modifyData(file,obj,res.body);
@@ -200,7 +215,7 @@ ipc.on('rename',(e,uuid,name,oldName)=>{
 ipc.on('dowload',(e,arr)=>{
 	for (let item of arr) {
 		dowload(item).then(data=>{
-			var stream = fs.createWriteStream('item.attribute.name');
+			var stream = fs.createWriteStream(item.attribute.name);
 			data.pipe(stream);
 		});
 	}
@@ -234,7 +249,7 @@ function getToken(uuid,password) {
 function getFile(uuid) {
 	var file = new Promise((resolve,reject)=>{
 		request
-			.get('192.168.5.132/files/'+uuid)
+			.get(server+'/files/'+uuid)
 			.set('Authorization',user.type+' '+user.token)
 			.end((err,res)=>{
 				if (res.ok) {
@@ -249,16 +264,43 @@ function getFile(uuid) {
 
 function getFiles() {
 	var files = new Promise((resolve,reject)=>{
-		request
-			.get('192.168.5.132/files')
-			.set('Authorization',user.type+' '+user.token)
-			.end((err,res)=>{
-				if(res.ok) {
-					resolve(eval(res.body));
-				}else {
-					reject(err);
+		// request
+		// 	.get(server+'/files')
+		// 	.set('Authorization',user.type+' '+user.token)
+		// 	.end((err,res)=>{
+		// 		res.on('data',(chunk)=>{
+		// 			console.log(chunk);
+		// 			console.log(chunk);
+		// 		})
+		// 		if(res.ok) {
+		// 			resolve(eval(res.body));
+		// 		}else {
+		// 			reject(err);
+		// 		}
+		// 	});
+
+			var options = {
+				hostname: '211.144.201.201',
+				port: 8888,
+				path: '/files',
+				method: 'GET',
+				headers: {
+					Authorization: user.type+' '+user.token
 				}
-			});
+			};
+			var req = http.request(options,function(res){
+				var body = '';
+				res.setEncoding('utf8');
+				res.on('data',function(chunk) {
+					console.log('chunk');
+					body += chunk;
+				});
+				res.on('end',function(){
+					console.log('end');
+					resolve(eval(body));
+				});
+			})
+			req.end();
 	});
 	return files;
 }

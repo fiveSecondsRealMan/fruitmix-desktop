@@ -64,6 +64,7 @@ class Main extends Component {
 		});
 
 		ipc.on('uploadSuccess',(file,dir,children)=>{
+			console.log('uploadSuccess');
 			// this.props.dispatch(Action.removeFile(obj));
 			if (dir.uuid == this.props.data.directory.uuid) {
 				this.props.dispatch(Action.refreshDir(children));
