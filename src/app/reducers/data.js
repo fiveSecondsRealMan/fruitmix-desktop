@@ -9,7 +9,8 @@ const defaultDirectory = {
 	menu:{show:false,objArr:[]},
 	detail:[],
 	upload:[],
-	dialogOfFolder: false
+	dialogOfFolder: false,
+	snackbar: false,
 }
 
 const directory = (state=defaultDirectory,action)=> {
@@ -88,6 +89,8 @@ const directory = (state=defaultDirectory,action)=> {
 			return Object.assign({},state,{upload:a});
 		case 'TOGGLE_DIALOG_FOLDER':
 			return Object.assign({},state,{dialogOfFolder:action.isOpen});
+		case 'TOGGLE_SNACKBAR':
+			return Object.assign({},state,{snackbar:action.isOpen});
 		default:
 			return state
 	}

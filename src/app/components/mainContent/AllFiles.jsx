@@ -138,9 +138,9 @@ class AllFiles extends Component {
 						<Menu></Menu>
 					</div>
 					<Snackbar
-				          open={this.props.data.upload.length==0?true:false}
-				          message={this.props.data.upload.map((item)=>{
-				          	return <div>item.file</div>
+				          open={this.props.data.upload.length!=0?true:false}
+				          message={this.props.data.upload.map((item,index)=>{
+				          	return <div>{item.name}</div>
 				          })}
 				       
 				        />

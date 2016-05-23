@@ -133,8 +133,15 @@ var actions = {
 		return {
 			type: 'TOGGLE_DIALOG_FOLDER',
 			isOpen: open
-
 		}
+	},
+
+	toggleSnackbar(open) {
+		return {
+			type: 'TOGGLE_SNACKBAR',
+			isOpen: open	
+		}
+		
 	}
 
 

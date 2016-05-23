@@ -4,13 +4,13 @@ var app = require('app');
 var BrowserWindow = require('browser-window');
 var globalShortcut = require('global-shortcut');
 var configuration = require('./configuration');
-var request = require('superagent');
+var request = require('request');
 var http = require('http');
 var ipc = require('ipc');
 var fs = require ('fs');
 var mainWindow = null;
 var server = '211.144.201.201:8888';
-// server ='192.168.5.132';
+server ='http://192.168.5.132:80';
 var user = {};
 var allFiles = null;
 var currentDirectory = {};
@@ -35,6 +35,8 @@ app.on('ready', function() {
 	// 	});
 	// })
 	// req.end();
+
+
 	if (!configuration.readSettings('shortcutKeys')) {
 		configuration.saveSettings('shortcutKeys', ['ctrl', 'shift']);
 	}
@@ -53,6 +55,7 @@ ipc.on('login',function(event,username,password){
 		user = Object.assign({},user,data[0]);
 		return getToken(data[0].uuid);
 	}).then((token)=>{
+		console.log(token);
 		user = Object.assign({},user,token);
 		mainWindow.webContents.send('loggedin',user);
 	});
@@ -129,30 +132,124 @@ ipc.on('getFile',(e,uuid)=>{
 });
 
 ipc.on('uploadFile',(e,file,obj)=>{
-	console.log(file);
-	request
-		.post(server+'/files/'+currentDirectory.uuid+'?type=file')
-		.set('Authorization',user.type+' '+user.token)
-		.attach('file',file.path)  
-		.end((err,res)=>{
-			res.on('data',function() {
-				console.log('111');
-			});
-			if(res.ok) {
-				console.log('res');
-				modifyData(file,obj,res.body);
-			}else{
-				console.log(err);
-				console.log('err');
-			}
-		});
+	// var req = request
+	// 			.post('http://127.0.0.1:5678'+'/files/'+currentDirectory.uuid+'?type=file')
+	// 			.set('Authorization',user.type+' '+user.token)
+	// 			.attach('file',file.path); 
+	// 		req.on('data',function() {
+	// 			console.log('111');
+	// 		});
 
-		// var stream = fs.createReadStream(file.path);
-		// var req = request
-		// .post(server+'/files/'+currentDirectory.uuid+'?type=file')
-		// .set('Authorization',user.type+' '+user.token);
+	// req.end((err,res)=>{
+			
+	// 		if(res.ok) {
+	// 			console.log('res');
+	// 			console.log(res.body);
+	// 			modifyData(file,obj,res.body);
+	// 		}else{
+	// 			console.log(err);
+	// 			console.log('err');
+	// 		}
+	// 	});
 
-		// stream.pipe(req);
+	var stream = fs.createReadStream(file.path,{bufferSize:1024 * 1024});
+	stream.on('data',function(d){
+		console.log(d);
+	})
+	var options = {
+		method: 'post',
+		url: server+'/files/'+currentDirectory.uuid+'?type=file',
+		headers: {
+			Authorization: user.type+' '+user.token
+		},
+		body:{
+			file: stream
+		}
+
+	};
+
+	function callback (err,res,body) {
+		console.log('err');
+		console.log(err);
+		console.log('res');
+		// console.log(res);
+		console.log('body');
+		console.log(body);
+		// if (!err && res.statusCode == 200) {
+		// 	console.log(body)
+		// 	resolve(JSON.parse(body));
+		// }else {
+		// 	console.log(err);
+		// 	reject(err)
+		// }
+	}
+
+	var r = request.post(server+'/files/'+currentDirectory.uuid+'?type=file',{
+		headers: {
+			Authorization: user.type+' '+user.token
+		},
+	},callback).on('data',function(d){
+		console.log('data-event');
+		console.log(d);
+	}).on('response',function(response){
+		response.on('data',function(e){
+			console.log('response-event');
+			console.log(e);
+		})
+	});
+	var form = r.form();
+	form.append('file', fs.createReadStream(file.path));
+
+
+	// var boundaryKey = '----' + new Date().getTime();
+	// var options = {
+	// 	hostname: '192.168.5.132',
+	// 	path: '/files/'+currentDirectory.uuid+'?type=file',
+	// 	method: 'post',
+	// 	headers: {
+	// 		Authorization: user.type+' '+user.token,
+	// 		'Content-Type': 'multipart/form-data; boundary=' +  boundaryKey,
+	// 		'Connection': "keep-alive",
+	// 	}
+	// };
+	
+			
+	// var req = http.request(options,function(res){
+	// 	res.setEncoding('utf8');
+	// 	res.on('data',function(chunk) {
+	// 		console.log('chunk');
+	// 		console.log('body: '+ chunk);
+	// 	});
+	// 	res.on('end',function(){
+	// 		console.log('res end');
+	// 	});
+
+	// 	res.on('error',function(err) {
+	// 		console.log('err');
+	// 		console.log(err);
+	// 	})
+	// });
+
+	//  req.write(
+
+ //        '–' + boundaryKey + '\r\n' +
+
+ //        'Content-Disposition: form-data; name="file"; file='+ file.name +'\r\n' +
+
+ //        'Content-Type: application/x-zip-compressed\r\n\r\n'
+
+ //    );
+
+
+	// var stream = fs.createReadStream(file.path,{bufferSize:1024 * 1024});
+	// stream.pipe(req,{end:false});
+	// stream.on('end',function(){
+
+ //        req.end("\r\n–" + boundaryKey + '–');
+
+ //    });
+
+		
 });
 
 ipc.on('upLoadFolder',(e,name,dir)=>{
@@ -223,23 +320,45 @@ ipc.on('dowload',(e,arr)=>{
 
 function login(username,password) {
 	let login = new Promise((resolve,reject)=>{
-		request.get(server+'/login').end((err,res)=>{
-			if (res.ok) {
-				resolve(eval(res.body));
+		// request.get(server+'/login').end((err,res)=>{
+		// 	if (res.ok) {
+		// 		resolve(eval(res.body));
+		// 	}else {
+		// 		reject(err);
+		// 	}
+		// });
+
+		request(server+'/login',function(err,res,body){
+			if (!err && res.statusCode == 200) {
+				resolve(eval(body));
 			}else {
-				reject(err);
+				reject(err)
 			}
-		});
+		})
 	});
 	return login;
 }
 function getToken(uuid,password) {
 	let a = new Promise((resolve,reject)=>{
-		request.get(server+'/token').auth(uuid,'123456' ).end((err,res)=>{
-			if (res.ok) {
-				resolve(eval(res.body));
+		// request.get(server+'/token').auth(uuid,'123456' ).end((err,res)=>{
+		// 	if (res.ok) {
+		// 		resolve(eval(res.body));
+		// 	}else {
+		// 		reject(err);
+		// 	}
+		// });
+
+		request.get(server+'/token',{
+			'auth': {
+			    'user': uuid,
+			    'pass': '123456',
+			    'sendImmediately': false
+			  }
+		},function(err,res,body) {
+			if (!err && res.statusCode == 200) {
+				resolve(JSON.parse(body));
 			}else {
-				reject(err);
+				reject(err)
 			}
 		});
 	});
@@ -263,63 +382,52 @@ function getFile(uuid) {
 }
 
 function getFiles() {
-	var files = new Promise((resolve,reject)=>{
-		// request
-		// 	.get(server+'/files')
-		// 	.set('Authorization',user.type+' '+user.token)
-		// 	.end((err,res)=>{
-		// 		res.on('data',(chunk)=>{
-		// 			console.log(chunk);
-		// 			console.log(chunk);
-		// 		})
-		// 		if(res.ok) {
-		// 			resolve(eval(res.body));
-		// 		}else {
-		// 			reject(err);
-		// 		}
-		// 	});
-
+	var files = new Promise((resolve,reject)=>{ 
 			var options = {
-				hostname: '211.144.201.201',
-				port: 8888,
-				path: '/files',
 				method: 'GET',
+				url: server+'/files',
 				headers: {
 					Authorization: user.type+' '+user.token
 				}
+
 			};
-			var req = http.request(options,function(res){
-				var body = '';
-				res.setEncoding('utf8');
-				res.on('data',function(chunk) {
-					console.log('chunk');
-					body += chunk;
-				});
-				res.on('end',function(){
-					console.log('end');
-					resolve(eval(body));
-				});
-			})
-			req.end();
+
+			function callback (err,res,body) {
+				if (!err && res.statusCode == 200) {
+					resolve(JSON.parse(body));
+				}else {
+					reject(err)
+				}
+			}
+
+			request(options,callback);
 	});
 	return files;
 }
 
 function deleteFile(obj) {
 	var deleteF = new Promise((resolve,reject)=>{
-			request
-				.delete(server+'/files/'+obj.uuid)
-				.set('Authorization',user.type+' '+user.token)
-				.end((err,res)=>{
-					if (res.ok) {
-						console.log('res');
-						resolve();
-					}else {
-						console.log('err');
-						console.log(err);
-						reject();
-					}
-				});
+			var options = {
+				method: 'delete',
+				url: server+'/files/'+obj.uuid,
+				headers: {
+					Authorization: user.type+' '+user.token
+				}
+
+			};
+
+			function callback (err,res,body) {
+				if (!err && res.statusCode == 200) {
+					console.log(body)
+					resolve(JSON.parse(body));
+				}else {
+					console.log(err);
+					reject(err)
+				}
+			}
+
+			request(options,callback);
+
 	});
 	return deleteF;
 }
@@ -343,24 +451,58 @@ function rename(uuid,name,oldName) {
 
 function dowload(item) {
 	var dowload = new Promise((resolve,reject)=>{
-		request
-			.get(server+'/files/'+item.uuid+'?type=media')
-			.set('Accept','application/json')
-			.set('Authorization',user.type+' '+user.token)
-			.set('Content-Type','text/plain')
-			.end((err,res)=>{
-				res.on('data',function(){
-					console.log('11');
-				});
-				if (res.ok) {
-					console.log('res');
-					resolve(res.body);
+		// request
+		// 	.get(server+'/files/'+item.uuid+'?type=media')
+		// 	.set('Accept','application/json')
+		// 	.set('Authorization',user.type+' '+user.token)
+		// 	.set('Content-Type','text/plain')
+		// 	.end((err,res)=>{
+		// 		res.on('data',function(){
+		// 			console.log('11');
+		// 		});
+		// 		if (res.ok) {
+		// 			console.log('res');
+		// 			resolve(res.body);
 
-				}else {
-					console.log(err);
-					console.log('err');
+		// 		}else {
+		// 			console.log(err);
+		// 			console.log('err');
+		// 		}
+		// 	});
+
+			var options = {
+				method: 'GET',
+				url: server+'/files/'+item.uuid+'?type=media',
+				headers: {
+					Authorization: user.type+' '+user.token
 				}
-			});
+
+			};
+
+			function callback (err,res,body) {
+				// console.log('err');
+				// console.log(err);
+				// console.log('res');
+				// console.log(res);
+				// console.log('body');
+				// console.log(body);
+				if (!err && res.statusCode == 200) {
+					resolve(body);
+				}else {
+					reject(err)
+				}
+			}
+
+			request(options,callback).on('data',function(d){
+		console.log('data-event');
+		// console.log(d);
+	}).on('response',function(response){
+		response.on('data',function(e){
+			console.log('response-event');
+			// console.log(e);
+		})
+	});
+
 	})
 		return dowload;
 	}
@@ -374,7 +516,7 @@ function modifyData(file,obj,uuid) {
 			}
 		}
 
-		var obj = {
+		var f= {
 			uuid:uuid,
 			path: obj.path+'/'+file.name,
 			parent: obj.uuid,
@@ -387,9 +529,9 @@ function modifyData(file,obj,uuid) {
       				createtime: "2016-04-25T10:31:52.089Z",
 			}
 		}
-		allFiles.push(obj);
+		allFiles.push(f);
 		if (currentDirectory.uuid == obj.uuid) {
-			children.push(obj);
+			children.push(f);
 		}
 		mainWindow.webContents.send('uploadSuccess',file,obj,children)
 }
