@@ -138,11 +138,8 @@ class AllFiles extends Component {
 						<Menu></Menu>
 					</div>
 					<Snackbar
-				          open={this.props.data.upload.length!=0?true:false}
-				          message={this.props.data.upload.map((item,index)=>{
-				          	return <div>{item.name}</div>
-				          })}
-				       
+				          open={this.props.data.snackbar!=''?true:false}
+				          message={this.props.data.snackbar}
 				        />
 				</Paper>
 				)
@@ -152,14 +149,19 @@ class AllFiles extends Component {
 	upLoadFile(e) {
 		for (let i=0;i<e.nativeEvent.target.files.length;i++) {
 			var f = e.nativeEvent.target.files[i];
+			var t = new Date();
 			var file = {
 				name:f.name,
 				path:f.path,
 				size:f.size,
-				lastModifiedDate:f.lastModifiedDate
+				lastModifiedDate:f.lastModifiedDate,
+				dir : this.props.data.directory,
+				uploadTime :  Date.parse(t),
+				status:0
+
 			}
-			this.props.dispatch(Action.addUpload(e.nativeEvent.target.files[i]));
-			ipc.send('uploadFile',file,this.props.data.directory);	
+			this.props.dispatch(Action.addUpload(file));
+			ipc.send('uploadFile',file);	
 		}
 		
 	}

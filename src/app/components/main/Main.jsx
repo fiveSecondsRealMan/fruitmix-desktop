@@ -63,12 +63,16 @@ class Main extends Component {
 			console.log(data);
 		});
 
-		ipc.on('uploadSuccess',(file,dir,children)=>{
+		ipc.on('uploadSuccess',(file,children)=>{
 			console.log('uploadSuccess');
 			// this.props.dispatch(Action.removeFile(obj));
-			if (dir.uuid == this.props.data.directory.uuid) {
+			if (file.dir.uuid == this.props.data.directory.uuid) {
 				this.props.dispatch(Action.refreshDir(children));
 			}
+		});
+
+		ipc.on('refreshStatusOfUpload',(file,status)=>{
+			this.props.dispatch(Action.refreshStatusOfUpload(file,status));
 		});
 
 		ipc.on('deleteSuccess',(obj,children,dir)=>{

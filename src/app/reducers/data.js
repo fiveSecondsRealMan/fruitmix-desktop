@@ -10,7 +10,7 @@ const defaultDirectory = {
 	detail:[],
 	upload:[],
 	dialogOfFolder: false,
-	snackbar: false,
+	snackbar: '',
 }
 
 const directory = (state=defaultDirectory,action)=> {
@@ -89,8 +89,19 @@ const directory = (state=defaultDirectory,action)=> {
 			return Object.assign({},state,{upload:a});
 		case 'TOGGLE_DIALOG_FOLDER':
 			return Object.assign({},state,{dialogOfFolder:action.isOpen});
-		case 'TOGGLE_SNACKBAR':
-			return Object.assign({},state,{snackbar:action.isOpen});
+		case 'REFRESH_STATUS_UPLOAD':
+			var newUploadArr = state.upload;
+			console.log(newUploadArr);
+			var uploadArrIndex = null
+			newUploadArr.forEach((item,index)=>{
+				if (item.name = action.file.name && item.uploadTime == action.file.uploadTime) {
+					uploadArrIndex = index
+					console.log('11111111111111111111111111111111111111111111111111');
+					console.log(index);
+				}
+			});
+			newUploadArr[uploadArrIndex].status = action.status;
+			return Object.assign({},state,{upload:newUploadArr})
 		default:
 			return state
 	}

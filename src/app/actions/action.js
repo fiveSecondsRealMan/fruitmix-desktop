@@ -136,12 +136,19 @@ var actions = {
 		}
 	},
 
-	toggleSnackbar(open) {
+	setSnackbar(mess) {
 		return {
-			type: 'TOGGLE_SNACKBAR',
-			isOpen: open	
+			type: 'SET_SNACKBAR',
+			message: mess
 		}
-		
+	},
+
+	refreshStatusOfUpload(file,status) {
+		return {
+			type: 'REFRESH_STATUS_UPLOAD',
+			file: file,
+			status: status
+		}
 	}
 
 

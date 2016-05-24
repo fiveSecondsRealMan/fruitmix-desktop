@@ -48,8 +48,8 @@ class AllFilesTable extends Component {
 									</div>
 								</td>
 								<td title={item.attribute.name}><div data-uuid={item.uuid}>{item.attribute.name}</div></td>
-								<td title={item.attribute.changetime}>{item.attribute.changetime}</td>
-								<td title={item.attribute.size}>{item.attribute.size}</td>
+								<td title={item.attribute.changetime}>{this.getTime(item.attribute.changetime)}</td>
+								<td title={item.attribute.size}>{this.getSize(item.attribute.size)}</td>
 							</tr>
 							)
 					})}
@@ -113,6 +113,24 @@ class AllFilesTable extends Component {
 
 	selectAllChildren() {
  		this.props.dispatch(Action.selectAllChildren());
+	}
+
+	getTime(date) {
+		let t = date.indexOf('T');
+		let d = date.substring(0,t);
+		let time = date.substring(t+1,t+9);
+		return  d+' '+time;
+	}
+
+	getSize(size) {
+		size = parseFloat(size);
+		if (size < 1024) {
+			return size.toFixed(2)+' KB'
+		}else if (size < 1024*1024) {
+			return (size/1024).toFixed(2)+' M'
+		}else {
+			return (size/1024/1024).toFixed(2)+ ' G'
+		}
 	}
 }
 

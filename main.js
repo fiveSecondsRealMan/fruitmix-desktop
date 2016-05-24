@@ -8,9 +8,10 @@ var request = require('request');
 var http = require('http');
 var ipc = require('ipc');
 var fs = require ('fs');
+var stream = require('stream')
 var mainWindow = null;
 var server = '211.144.201.201:8888';
-server ='http://192.168.5.132:80';
+server ='http://192.168.5.132:88';
 var user = {};
 var allFiles = null;
 var currentDirectory = {};
@@ -55,7 +56,6 @@ ipc.on('login',function(event,username,password){
 		user = Object.assign({},user,data[0]);
 		return getToken(data[0].uuid);
 	}).then((token)=>{
-		console.log(token);
 		user = Object.assign({},user,token);
 		mainWindow.webContents.send('loggedin',user);
 	});
@@ -131,7 +131,7 @@ ipc.on('getFile',(e,uuid)=>{
 	})
 });
 
-ipc.on('uploadFile',(e,file,obj)=>{
+ipc.on('uploadFile',(e,file)=>{
 	// var req = request
 	// 			.post('http://127.0.0.1:5678'+'/files/'+currentDirectory.uuid+'?type=file')
 	// 			.set('Authorization',user.type+' '+user.token)
@@ -152,53 +152,74 @@ ipc.on('uploadFile',(e,file,obj)=>{
 	// 		}
 	// 	});
 
-	var stream = fs.createReadStream(file.path,{bufferSize:1024 * 1024});
-	stream.on('data',function(d){
-		console.log(d);
-	})
-	var options = {
-		method: 'post',
-		url: server+'/files/'+currentDirectory.uuid+'?type=file',
-		headers: {
-			Authorization: user.type+' '+user.token
-		},
-		body:{
-			file: stream
-		}
+	// var stream = fs.createReadStream(file.path,{bufferSize:1024 * 1024});
+	// stream.on('data',function(d){
+	// 	console.log('xxx');
+	// })
+	// var options = {
+	// 	method: 'post',
+	// 	url: server+'/files/'+currentDirectory.uuid+'?type=file',
+	// 	headers: {
+	// 		Authorization: user.type+' '+user.token
+	// 	},
+	// 	body:{
+	// 		file: stream
+	// 	}
 
-	};
+	// };
+	var body = 0;
+	var t = 0;
+	setInterval(function() {
+		console.log(body/file.size);
+		mainWindow.webContents.send('refreshStatusOfUpload',file,body/file.size);
+	},500);
+	var transform = new stream.Transform({
+		transform: function(chunk, encoding, next) {
+			body+=chunk.length;
+			
+			this.push(chunk)
+			next();
+		}
+	})
 
 	function callback (err,res,body) {
 		console.log('err');
 		console.log(err);
-		console.log('res');
-		// console.log(res);
 		console.log('body');
 		console.log(body);
-		// if (!err && res.statusCode == 200) {
-		// 	console.log(body)
-		// 	resolve(JSON.parse(body));
-		// }else {
-		// 	console.log(err);
-		// 	reject(err)
-		// }
+		if (!err && res.statusCode == 200) {
+			modifyData(file,body);
+		}else {
+			console.log(err);
+			reject(err)
+		}
 	}
+
+	var fakeserver = 'http://127.0.0.1:23456'
 
 	var r = request.post(server+'/files/'+currentDirectory.uuid+'?type=file',{
 		headers: {
 			Authorization: user.type+' '+user.token
 		},
-	},callback).on('data',function(d){
-		console.log('data-event');
-		console.log(d);
-	}).on('response',function(response){
-		response.on('data',function(e){
-			console.log('response-event');
-			console.log(e);
-		})
-	});
+	},callback)
+
+	// var count = 0
+
+	// r.on('data',function(d){
+	// 	count += d.length
+	// 	console.log(count)
+	// })
+
+	// r.on('response',function(response){
+		// response.on('data',function(e){
+		// 	console.log('response-event');
+		// 	console.log(e);
+		// })
+	// });
 	var form = r.form();
-	form.append('file', fs.createReadStream(file.path));
+	var tempStream = fs.createReadStream(file.path).pipe(transform)
+	tempStream.path = file.path
+	form.append('file', tempStream);
 
 
 	// var boundaryKey = '----' + new Date().getTime();
@@ -312,6 +333,7 @@ ipc.on('rename',(e,uuid,name,oldName)=>{
 ipc.on('dowload',(e,arr)=>{
 	for (let item of arr) {
 		dowload(item).then(data=>{
+
 			var stream = fs.createWriteStream(item.attribute.name);
 			data.pipe(stream);
 		});
@@ -418,9 +440,12 @@ function deleteFile(obj) {
 
 			function callback (err,res,body) {
 				if (!err && res.statusCode == 200) {
+					console.log('res');
 					console.log(body)
 					resolve(JSON.parse(body));
 				}else {
+					console.log('err');
+					console.log(res);
 					console.log(err);
 					reject(err)
 				}
@@ -507,10 +532,10 @@ function dowload(item) {
 		return dowload;
 	}
 
-function modifyData(file,obj,uuid) {
+function modifyData(file,uuid) {
 	//modify allfiles
 		for (let item of allFiles) {
-			if (item.uuid == obj.uuid) {
+			if (item.uuid == file.dir.uuid) {
 				item.children.push(uuid);
 				break;
 			}
@@ -518,8 +543,8 @@ function modifyData(file,obj,uuid) {
 
 		var f= {
 			uuid:uuid,
-			path: obj.path+'/'+file.name,
-			parent: obj.uuid,
+			path: file.dir.path+'/'+file.name,
+			parent: file.dir.uuid,
 			hash:file.path,
 			checked: false,
 			attribute: {
@@ -530,10 +555,10 @@ function modifyData(file,obj,uuid) {
 			}
 		}
 		allFiles.push(f);
-		if (currentDirectory.uuid == obj.uuid) {
+		if (currentDirectory.uuid == file.dir.uuid) {
 			children.push(f);
 		}
-		mainWindow.webContents.send('uploadSuccess',file,obj,children)
+		mainWindow.webContents.send('uploadSuccess',file,children)
 }
 	
 	function modifyFolder(name,dir,folderuuid) {
