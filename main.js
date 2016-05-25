@@ -11,7 +11,7 @@ var fs = require ('fs');
 var stream = require('stream')
 var mainWindow = null;
 var server = '211.144.201.201:8888';
-server ='http://192.168.5.132:88';
+server ='http://192.168.5.132:80';
 var user = {};
 var allFiles = null;
 var currentDirectory = {};
@@ -132,51 +132,18 @@ ipc.on('getFile',(e,uuid)=>{
 });
 
 ipc.on('uploadFile',(e,file)=>{
-	// var req = request
-	// 			.post('http://127.0.0.1:5678'+'/files/'+currentDirectory.uuid+'?type=file')
-	// 			.set('Authorization',user.type+' '+user.token)
-	// 			.attach('file',file.path); 
-	// 		req.on('data',function() {
-	// 			console.log('111');
-	// 		});
-
-	// req.end((err,res)=>{
-			
-	// 		if(res.ok) {
-	// 			console.log('res');
-	// 			console.log(res.body);
-	// 			modifyData(file,obj,res.body);
-	// 		}else{
-	// 			console.log(err);
-	// 			console.log('err');
-	// 		}
-	// 	});
-
-	// var stream = fs.createReadStream(file.path,{bufferSize:1024 * 1024});
-	// stream.on('data',function(d){
-	// 	console.log('xxx');
-	// })
-	// var options = {
-	// 	method: 'post',
-	// 	url: server+'/files/'+currentDirectory.uuid+'?type=file',
-	// 	headers: {
-	// 		Authorization: user.type+' '+user.token
-	// 	},
-	// 	body:{
-	// 		file: stream
-	// 	}
-
-	// };
 	var body = 0;
 	var t = 0;
-	setInterval(function() {
-		console.log(body/file.size);
-		mainWindow.webContents.send('refreshStatusOfUpload',file,body/file.size);
+	var interval = setInterval(function() {
+		var upLoadProcess = body/file.size;
+		mainWindow.webContents.send('refreshStatusOfUpload',file,upLoadProcess);
+		if (upLoadProcess >= 1) {
+			clearInterval(interval);
+		}
 	},500);
 	var transform = new stream.Transform({
 		transform: function(chunk, encoding, next) {
 			body+=chunk.length;
-			
 			this.push(chunk)
 			next();
 		}
@@ -188,7 +155,8 @@ ipc.on('uploadFile',(e,file)=>{
 		console.log('body');
 		console.log(body);
 		if (!err && res.statusCode == 200) {
-			modifyData(file,body);
+			var uuid = body;
+			modifyData(file,uuid);
 		}else {
 			console.log(err);
 			reject(err)
@@ -203,74 +171,10 @@ ipc.on('uploadFile',(e,file)=>{
 		},
 	},callback)
 
-	// var count = 0
-
-	// r.on('data',function(d){
-	// 	count += d.length
-	// 	console.log(count)
-	// })
-
-	// r.on('response',function(response){
-		// response.on('data',function(e){
-		// 	console.log('response-event');
-		// 	console.log(e);
-		// })
-	// });
 	var form = r.form();
 	var tempStream = fs.createReadStream(file.path).pipe(transform)
 	tempStream.path = file.path
-	form.append('file', tempStream);
-
-
-	// var boundaryKey = '----' + new Date().getTime();
-	// var options = {
-	// 	hostname: '192.168.5.132',
-	// 	path: '/files/'+currentDirectory.uuid+'?type=file',
-	// 	method: 'post',
-	// 	headers: {
-	// 		Authorization: user.type+' '+user.token,
-	// 		'Content-Type': 'multipart/form-data; boundary=' +  boundaryKey,
-	// 		'Connection': "keep-alive",
-	// 	}
-	// };
-	
-			
-	// var req = http.request(options,function(res){
-	// 	res.setEncoding('utf8');
-	// 	res.on('data',function(chunk) {
-	// 		console.log('chunk');
-	// 		console.log('body: '+ chunk);
-	// 	});
-	// 	res.on('end',function(){
-	// 		console.log('res end');
-	// 	});
-
-	// 	res.on('error',function(err) {
-	// 		console.log('err');
-	// 		console.log(err);
-	// 	})
-	// });
-
-	//  req.write(
-
- //        '–' + boundaryKey + '\r\n' +
-
- //        'Content-Disposition: form-data; name="file"; file='+ file.name +'\r\n' +
-
- //        'Content-Type: application/x-zip-compressed\r\n\r\n'
-
- //    );
-
-
-	// var stream = fs.createReadStream(file.path,{bufferSize:1024 * 1024});
-	// stream.pipe(req,{end:false});
-	// stream.on('end',function(){
-
- //        req.end("\r\n–" + boundaryKey + '–');
-
- //    });
-
-		
+	form.append('file', tempStream);	
 });
 
 ipc.on('upLoadFolder',(e,name,dir)=>{
@@ -330,14 +234,12 @@ ipc.on('rename',(e,uuid,name,oldName)=>{
 	})
 })
 
-ipc.on('dowload',(e,arr)=>{
-	for (let item of arr) {
-		dowload(item).then(data=>{
-
-			var stream = fs.createWriteStream(item.attribute.name);
-			data.pipe(stream);
+ipc.on('download',(e,file)=>{
+		download(file).then(data=>{
+			console.log(file.attribute.name + ' download success');
+			// var stream = fs.createWriteStream(file.attribute.name);
+			// data.pipe(stream);
 		});
-	}
 })
 
 function login(username,password) {
@@ -474,62 +376,53 @@ function rename(uuid,name,oldName) {
 	return rename;
 }
 
-function dowload(item) {
-	var dowload = new Promise((resolve,reject)=>{
-		// request
-		// 	.get(server+'/files/'+item.uuid+'?type=media')
-		// 	.set('Accept','application/json')
-		// 	.set('Authorization',user.type+' '+user.token)
-		// 	.set('Content-Type','text/plain')
-		// 	.end((err,res)=>{
-		// 		res.on('data',function(){
-		// 			console.log('11');
-		// 		});
-		// 		if (res.ok) {
-		// 			console.log('res');
-		// 			resolve(res.body);
-
-		// 		}else {
-		// 			console.log(err);
-		// 			console.log('err');
-		// 		}
-		// 	});
-
+function download(item) {
+	var download = new Promise((resolve,reject)=>{
+			var body = 0;
 			var options = {
 				method: 'GET',
 				url: server+'/files/'+item.uuid+'?type=media',
 				headers: {
 					Authorization: user.type+' '+user.token
 				}
-
 			};
 
 			function callback (err,res,body) {
-				// console.log('err');
-				// console.log(err);
-				// console.log('res');
-				// console.log(res);
-				// console.log('body');
-				// console.log(body);
 				if (!err && res.statusCode == 200) {
+					console.log('res');
+					// console.log(res);
 					resolve(body);
 				}else {
-					reject(err)
+					// reject(err)
+					console.log('err');
+					console.log(err);
 				}
 			}
+			var stream = fs.createWriteStream('download/'+item.attribute.name);
+
+			var interval = setInterval(function() {
+				var upLoadProcess = body/item.attribute.size;
+				console.log(upLoadProcess);
+				mainWindow.webContents.send('refreshStatusOfDownload',item,upLoadProcess);
+				if (upLoadProcess >= 1) {
+					resolve();
+					clearInterval(interval);
+				}
+			},500);
 
 			request(options,callback).on('data',function(d){
-		console.log('data-event');
-		// console.log(d);
-	}).on('response',function(response){
-		response.on('data',function(e){
-			console.log('response-event');
-			// console.log(e);
-		})
-	});
-
+				body += d.length;
+			}).pipe(stream);
+			
+			var transform = new stream.Transform({
+				transform: function(chunk, encoding, next) {
+					body+=chunk.length;
+					this.push(chunk)
+					next();
+				}
+			});	
 	})
-		return dowload;
+	return download;
 	}
 
 function modifyData(file,uuid) {

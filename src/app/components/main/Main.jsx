@@ -75,6 +75,10 @@ class Main extends Component {
 			this.props.dispatch(Action.refreshStatusOfUpload(file,status));
 		});
 
+		ipc.on('refreshStatusOfDownload',(file,status)=>{
+			this.props.dispatch(Action.refreshStatusOfDownload(file,status));
+		})
+
 		ipc.on('deleteSuccess',(obj,children,dir)=>{
 			console.log('deleteSuccess');
 			console.log(obj);

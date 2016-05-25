@@ -9,6 +9,7 @@ const defaultDirectory = {
 	menu:{show:false,objArr:[]},
 	detail:[],
 	upload:[],
+	dowload: [],
 	dialogOfFolder: false,
 	snackbar: '',
 }
@@ -72,6 +73,13 @@ const directory = (state=defaultDirectory,action)=> {
 		case 'ADD_UPLOAD':
 			var upload = state.upload.concat([action.obj]);
 			return Object.assign({},state,{upload:upload});
+		case 'ADD_DOWNLOAD':
+			var dowload = state.dowload.concat([action.obj]);
+			//add property status for each item
+			for (let i =0; i < dowload.length; i++) {
+				dowload[i].status = 0
+			}
+			return Object.assign({},state,{dowload:dowload});
 		case 'REFRESH_DIR':
 			var position = action.obj.map((item,index)=>{
 				return {top:index*51+58+48+8+64,bottom:(index+1)*51+58+48+8+64}
@@ -91,17 +99,37 @@ const directory = (state=defaultDirectory,action)=> {
 			return Object.assign({},state,{dialogOfFolder:action.isOpen});
 		case 'REFRESH_STATUS_UPLOAD':
 			var newUploadArr = state.upload;
-			console.log(newUploadArr);
-			var uploadArrIndex = null
-			newUploadArr.forEach((item,index)=>{
-				if (item.name = action.file.name && item.uploadTime == action.file.uploadTime) {
-					uploadArrIndex = index
-					console.log('11111111111111111111111111111111111111111111111111');
-					console.log(index);
+			var uploadArrIndex = null;
+			for (let i = 0;i<newUploadArr.length;i++) {
+				if (newUploadArr[i].name == action.file.name) {
+					uploadArrIndex = i;
+					break;
 				}
-			});
+				
+			}
 			newUploadArr[uploadArrIndex].status = action.status;
-			return Object.assign({},state,{upload:newUploadArr})
+			if (uploadArrIndex !=null) {
+				return Object.assign({},state,{upload:newUploadArr})
+			}else {
+				return state;
+			}
+		case 'REFRESH_STATUS_DOWNLOAD':
+			var newDownloadArr = state.dowload;
+			var downloadArrIndex = null;
+			for (let i=0;i<newDownloadArr.length;i++) {
+				console.log(newDownloadArr[i].uuid);
+				if (newDownloadArr[i].uuid == action.file.uuid) {
+					downloadArrIndex = i;
+					break;
+				}
+				
+			}
+			newDownloadArr[downloadArrIndex].status = action.status;
+			if (downloadArrIndex !=null) {
+				return Object.assign({},state,{download:newDownloadArr})
+			}else {
+				return state
+			}
 		default:
 			return state
 	}

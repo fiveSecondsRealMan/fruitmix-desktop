@@ -125,11 +125,13 @@ class AllFilesTable extends Component {
 	getSize(size) {
 		size = parseFloat(size);
 		if (size < 1024) {
-			return size.toFixed(2)+' KB'
+			return size.toFixed(2)+' B'
 		}else if (size < 1024*1024) {
-			return (size/1024).toFixed(2)+' M'
+			return (size/1024).toFixed(2)+' KB'
+		}else if(size<1024*1024*1024) {
+			return (size/1024/1024).toFixed(2)+ ' M'
 		}else {
-			return (size/1024/1024).toFixed(2)+ ' G'
+			return (size/1024/1024/1024).toFixed(2)+ ' G'
 		}
 	}
 }
