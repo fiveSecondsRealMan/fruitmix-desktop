@@ -504,7 +504,8 @@ function modifyData(file,uuid) {
       				createtime: "2016-04-25T10:31:52.089Z",
 			},
 			type: 'folder',
-			dir:dir
+			dir:dir,
+			children:[]
 		}
 		allFiles.push(folder);
 		if (currentDirectory.uuid == dir.uuid) {
@@ -522,7 +523,8 @@ function modifyData(file,uuid) {
       				createtime: "2016-04-25T10:31:52.089Z",
 			},
 			type: 'folder',
-			dir:dir
+			dir:dir,
+			children:[]
 		});
 		}
 		console.log(children)
