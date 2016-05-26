@@ -47,13 +47,13 @@ class AllFiles extends Component {
 					<Detail></Detail>
 				</Paper>
 				<Dialog
-			          title="create folder"
+			          title="新建文件夹"
 			          actions={actions}
 			          modal={false}
 			          open={this.props.data.dialogOfFolder}
 			          onRequestClose={this.handleClose}
 			        >
-			          <TextField hintText="folder name" id='folder-name'/>
+			          <TextField hintText="名称" id='folder-name'/>
 			        </Dialog>
 			</div>
 		)
@@ -129,8 +129,8 @@ class AllFiles extends Component {
 						      anchorOrigin={{horizontal: 'left', vertical: 'top'}}
 						      targetOrigin={{horizontal: 'left', vertical: 'top'}}
 						    >
-						    	<MenuItem innerDivStyle={listStyle} primaryText="createFolder" onClick={this.toggleUploadFolder.bind(this,true)}/>
-							<MenuItem innerDivStyle={listStyle} primaryText="upLoadFile" onClick={this.openInputFile.bind(this)}/>
+						    	<MenuItem innerDivStyle={listStyle} primaryText="新建文件夹" onClick={this.toggleUploadFolder.bind(this,true)}/>
+							<MenuItem innerDivStyle={listStyle} primaryText="上传文件" onClick={this.openInputFile.bind(this)}/>
 						</IconMenu>
 					</div>
 					<div className="all-files-container">

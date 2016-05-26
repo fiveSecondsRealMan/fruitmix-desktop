@@ -111,7 +111,7 @@ class Main extends Component {
 					      hintText="search"
 					      className='search-input'
 					/>
-					<span style={{color:'white'}}>userName</span></div>
+					<span style={{color:'white'}}>admin</span></div>
 				}
 				onLeftIconButtonTouchTap={this.leftNavClick.bind(this)}
 				>
