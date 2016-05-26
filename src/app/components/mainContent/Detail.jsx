@@ -25,14 +25,13 @@ import Action from '../../actions/action';
 			 		}
  			return(
 	 			<div style={style} className='detail-container'>
-	 				<div>type&nbsp;&nbsp;:&nbsp;&nbsp;{data.type?data.type:null}</div>
-	 				<div>size&nbsp;&nbsp;:&nbsp;&nbsp;{data.attribute.size/1024||null}M</div>
-	 				<div>position&nbsp;&nbsp;:&nbsp;&nbsp;{data.path||null}</div>
-	 				<div>owner&nbsp;&nbsp;:&nbsp;&nbsp;{data.owner||null}</div>
-	 				<div>createtime&nbsp;&nbsp;:&nbsp;&nbsp;{data.attribute.createtime||null}</div>
-	 				<div>updatetime&nbsp;&nbsp;:&nbsp;&nbsp;{data.attribute.changetime||null}</div>
-	 				<div>shared to&nbsp;&nbsp;:&nbsp;&nbsp;</div>
-	 				<RaisedButton label="close" onMouseUp={this.closeDetail.bind(this)} style={{}}/>
+	 				<div>类型&nbsp;&nbsp;:&nbsp;&nbsp;{data.type?data.type:null}</div>
+	 				<div>大小&nbsp;&nbsp;:&nbsp;&nbsp;{data.attribute.size/1024||null}M</div>
+	 				<div>位置&nbsp;&nbsp;:&nbsp;&nbsp;{data.path||null}</div>
+	 				<div>所有者&nbsp;&nbsp;:&nbsp;&nbsp;{data.owner||null}</div>
+	 				<div>上传时间&nbsp;&nbsp;:&nbsp;&nbsp;{data.attribute.createtime||null}</div>
+	 				<div>修改时间&nbsp;&nbsp;:&nbsp;&nbsp;{data.attribute.changetime||null}</div>
+	 				<RaisedButton label="close" onMouseUp={this.closeDetail.bind(this)} className='detail-close'/>
 	 			</div> 
 	 			)
  		}else {

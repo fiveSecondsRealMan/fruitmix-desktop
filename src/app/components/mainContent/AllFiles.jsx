@@ -65,7 +65,7 @@ class AllFiles extends Component {
 		pathArr = path.map((item,index)=>(
 				<span key={index} style={{display:'flex',alignItems:'center'}}>
 					<span 
-					style={{display:'flex',alignItems:'center',marginRight:10}}
+					style={{display:'flex',alignItems:'center',marginRight:10,cursor:'pointer'}}
 					onClick={_this.selectBreadCrumb.bind(_this,item)}>
 						{item.key!=''?item.key:<SvgIcon>{svg['home']()}</SvgIcon>}
 					</span>
@@ -125,7 +125,7 @@ class AllFiles extends Component {
 						{this.getBreadCrumb()}
 
 						<IconMenu style={{display:'flex',alignItems:'center',marginRight:10}}
-						      iconButtonElement={<span>{svg.add()}</span>}
+						      iconButtonElement={<span style={{cursor:'pointer'}}>{svg.add()}</span>}
 						      anchorOrigin={{horizontal: 'left', vertical: 'top'}}
 						      targetOrigin={{horizontal: 'left', vertical: 'top'}}
 						    >

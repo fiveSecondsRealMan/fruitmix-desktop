@@ -140,6 +140,13 @@
 	text-overflow: ellipsis;
 	cursor:default;
 }
+.allFileTable td>div {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: center;
+}
 .allFileTable th:nth-child(1),.allFileTable td:nth-child(1) {
 	width:24px;
 }
@@ -200,14 +207,62 @@
 	width:100%;
 	line-height: 30px;
 }
+.file-type-icon {
+	width:30px;
+	height:30px;
+	background-image: url(../images/index/file.png);
+	display: inline-block;
+	background-size: 732px;
+	margin-right: 10px;
+	flex-shrink:0;
+}
+.file-type-icon.folder{
+	background-position: 0px 0px;
+}
+.file-type-icon.file {
+	background-position: -209px 50px;
+}
+.file-type-icon.doc{
+	background-position: 0px -50px
+}
+.file-type-icon.docx {
+	background-position: -50px -50px;
+}
+.file-type-icon.wps {
+	background-position: -155px -50px; 
+}
+.file-type-icon.ppt {
+	background-position: -208px -50px;
+}
+.file-type-icon.pptx {
+	background-position: -258px -50px;
+}
+.file-type-icon.pdf {
+	background-position: 0px -100px;
+}
+.file-type-icon.txt {
+	background-position: -53px -100px;
+}
+.file-type-icon.jpg {
+	background-position: 0px -153px;
+}
+
+
 
 /*detail*/
 .detail-container{
 	box-sizing: border-box;
+	position: relative;
 /*	padding:10px 20px;*/
 }
 .detail-container>div{
 	margin-bottom: 10px;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+.detail-close {
+	position: absolute;
+	bottom: 20px;
+	left:20px;
+	line-height: 36px;
 }

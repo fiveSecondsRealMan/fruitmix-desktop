@@ -156,6 +156,7 @@ ipc.on('uploadFile',(e,file)=>{
 		console.log(body);
 		if (!err && res.statusCode == 200) {
 			var uuid = body;
+			uuid = uuid.slice(1,uuid.length-1);
 			modifyData(file,uuid);
 		}else {
 			console.log(err);
@@ -178,20 +179,24 @@ ipc.on('uploadFile',(e,file)=>{
 });
 
 ipc.on('upLoadFolder',(e,name,dir)=>{
-	request
-		.post(server+'/files/'+dir.uuid+'?type=folder')
-		.set('Authorization',user.type+' '+user.token)
-		.send({foldername:name})
-		.end((err,res)=>{
-			if (res.ok) {
-				console.log('res');
-				console.log(res);
-				modifyFolder(name,dir,res.body);
-			}else {
-				console.log('err');
-				console.log(err);
-			}
-		})
+
+	var r = request.post(server+'/files/'+dir.uuid+'?type=folder',{
+		headers: {
+			Authorization: user.type+' '+user.token
+		},
+	},function (err,res,body) {
+		if (!err && res.statusCode == 200) {
+			console.log('res');
+			var uuid = body;
+			uuid = uuid.slice(1,uuid.length-1);
+			modifyFolder(name,dir,uuid);
+		}else {
+			console.log('err');
+			console.log(err);
+		}
+	});
+	var form = r.form();
+	form.append('foldername',name);
 });
 
 ipc.on('refresh',(e,uuid)=>{
@@ -361,17 +366,41 @@ function deleteFile(obj) {
 
 function rename(uuid,name,oldName) {
 	let rename = new Promise((resolve,reject)=>{
-		request
-			.patch(server+'/files/'+uuid)
-			.set('Authorization',user.type+' '+user.token)
-			.send({filename:name})
-			.end((err,res)=>{
-				if (res.ok) {
-					console.log('res');
-				}else {
-					console.log(err);
+		// request
+		// 	.patch(server+'/files/'+uuid)
+		// 	.set('Authorization',user.type+' '+user.token)
+		// 	.send({filename:name})
+		// 	.end((err,res)=>{
+		// 		if (res.ok) {
+		// 			console.log('res');
+		// 		}else {
+		// 			console.log(err);
+		// 		}
+		// 	})
+
+		var options = {
+			method: 'patch',
+			url: server+'/files/'+uuid,
+			headers: {
+					Authorization: user.type+' '+user.token
 				}
-			})
+		};
+
+		function callback (err,res,body) {
+			console.log(res);
+				if (!err && res.statusCode == 200) {
+					console.log('res');
+					resolve(body);
+				}else {
+					console.log('err');
+					console.log(err);
+					reject(err)
+				}
+			}
+
+		var r = request(options,callback);
+		var form = r.form();
+		form.append('filename',name);
 	});
 	return rename;
 }
@@ -402,7 +431,6 @@ function download(item) {
 
 			var interval = setInterval(function() {
 				var upLoadProcess = body/item.attribute.size;
-				console.log(upLoadProcess);
 				mainWindow.webContents.send('refreshStatusOfDownload',item,upLoadProcess);
 				if (upLoadProcess >= 1) {
 					resolve();
@@ -445,7 +473,8 @@ function modifyData(file,uuid) {
 				size:file.size	,
 				changetime: "2016-04-25T10:31:52.089Z",
       				createtime: "2016-04-25T10:31:52.089Z",
-			}
+			},
+			type: 'file'
 		}
 		allFiles.push(f);
 		if (currentDirectory.uuid == file.dir.uuid) {
@@ -457,11 +486,12 @@ function modifyData(file,uuid) {
 	function modifyFolder(name,dir,folderuuid) {
 		for (let item of allFiles) {
 			if (item.uuid == dir.uuid) {
+				console.log('1');
 				item.children.push(folderuuid);
 				break;
 			}
 		}
-		let obj = {
+		var folder = {
 			uuid:folderuuid,
 			path: dir.path+'/'+name,
 			parent: dir.uuid,
@@ -469,16 +499,34 @@ function modifyData(file,uuid) {
 			checked: false,
 			attribute: {
 				name:name,
-				size:null	,
+				size: 4096,
 				changetime: "2016-04-25T10:31:52.089Z",
       				createtime: "2016-04-25T10:31:52.089Z",
-			}
+			},
+			type: 'folder',
+			dir:dir
 		}
-		allFiles.push(obj);
+		allFiles.push(folder);
 		if (currentDirectory.uuid == dir.uuid) {
-			children.push(obj);
+			console.log('2');
+			children.push({
+			uuid:folderuuid,
+			path: dir.path+'/'+name,
+			parent: dir.uuid,
+			hash:dir.path+'/'+name,
+			checked: false,
+			attribute: {
+				name:name,
+				size: 4096,
+				changetime: "2016-04-25T10:31:52.089Z",
+      				createtime: "2016-04-25T10:31:52.089Z",
+			},
+			type: 'folder',
+			dir:dir
+		});
 		}
-		mainWindow.webContents.send('uploadSuccess',name,dir,children)
+		console.log(children)
+		mainWindow.webContents.send('uploadSuccess',folder,children)
 	}
 
 

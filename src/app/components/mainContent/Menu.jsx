@@ -69,6 +69,11 @@ class PopMenu extends Component {
 				range.collapse(true);
 				range.select();
 			}
+		}).keydown(function(e){
+			console.log(e.keyCode);
+			if (e.keyCode) {
+				$(this).trigger('blur');
+			}
 		}).blur(function() {
 			$(this).attr('contenteditable','false');
 			let name = dom.innerHTML;

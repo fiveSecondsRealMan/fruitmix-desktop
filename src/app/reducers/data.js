@@ -20,7 +20,7 @@ const directory = (state=defaultDirectory,action)=> {
 			let position = action.children.map((item,index)=>{
 				return {top:index*51+58+48+8+64,bottom:(index+1)*51+58+48+8+64}
 			})
-			return Object.assign({}, state,{directory:action.directory,children:action.children,parent:action.parent,path:action.path,position:position,state:'READY'});
+			return Object.assign({}, state,{directory:action.directory,children:action.children,parent:action.parent,path:action.path,position:position,state:'READY',selectAll:false});
 		case 'SELECT_CHILDREN':
 			var allSelected = true;
 			//setSelectedChildren
@@ -32,6 +32,7 @@ const directory = (state=defaultDirectory,action)=> {
 				if (item.checked == false) {
 					allSelected = false;
 				}
+				break;
 			}
 			return Object.assign({},state,{children:newState,selectAll:allSelected})
 		case 'SELECT_ALL_CHILDREN':
