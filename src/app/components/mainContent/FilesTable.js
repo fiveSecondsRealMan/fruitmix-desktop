@@ -158,7 +158,6 @@ class AllFilesTable extends Component {
 		];
 
 		for (let i =0;i<arr.length;i++) {
-			console.log(file.attribute.name);
 			if (arr[i].reg.test(file.attribute.name)) {
 				return arr[i].type
 			}
