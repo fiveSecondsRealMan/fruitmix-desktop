@@ -47,13 +47,13 @@ class AllFiles extends Component {
 					<Detail></Detail>
 				</Paper>
 				<Dialog
-			          title="create folder"
+			          title="新建文件夹"
 			          actions={actions}
 			          modal={false}
 			          open={this.props.data.dialogOfFolder}
 			          onRequestClose={this.handleClose}
 			        >
-			          <TextField hintText="folder name" id='folder-name'/>
+			          <TextField hintText="名称" id='folder-name'/>
 			        </Dialog>
 			</div>
 		)
@@ -65,7 +65,7 @@ class AllFiles extends Component {
 		pathArr = path.map((item,index)=>(
 				<span key={index} style={{display:'flex',alignItems:'center'}}>
 					<span 
-					style={{display:'flex',alignItems:'center',marginRight:10}}
+					style={{display:'flex',alignItems:'center',marginRight:10,cursor:'pointer'}}
 					onClick={_this.selectBreadCrumb.bind(_this,item)}>
 						{item.key!=''?item.key:<SvgIcon>{svg['home']()}</SvgIcon>}
 					</span>
@@ -125,12 +125,12 @@ class AllFiles extends Component {
 						{this.getBreadCrumb()}
 
 						<IconMenu style={{display:'flex',alignItems:'center',marginRight:10}}
-						      iconButtonElement={<span>{svg.add()}</span>}
+						      iconButtonElement={<span style={{cursor:'pointer'}}>{svg.add()}</span>}
 						      anchorOrigin={{horizontal: 'left', vertical: 'top'}}
 						      targetOrigin={{horizontal: 'left', vertical: 'top'}}
 						    >
-						    	<MenuItem innerDivStyle={listStyle} primaryText="createFolder" onClick={this.toggleUploadFolder.bind(this,true)}/>
-							<MenuItem innerDivStyle={listStyle} primaryText="upLoadFile" onClick={this.openInputFile.bind(this)}/>
+						    	<MenuItem innerDivStyle={listStyle} primaryText="新建文件夹" onClick={this.toggleUploadFolder.bind(this,true)}/>
+							<MenuItem innerDivStyle={listStyle} primaryText="上传文件" onClick={this.openInputFile.bind(this)}/>
 						</IconMenu>
 					</div>
 					<div className="all-files-container">
@@ -138,11 +138,8 @@ class AllFiles extends Component {
 						<Menu></Menu>
 					</div>
 					<Snackbar
-				          open={this.props.data.upload.length==0?true:false}
-				          message={this.props.data.upload.map((item)=>{
-				          	return <div>item.file</div>
-				          })}
-				       
+				          open={this.props.data.snackbar!=''?true:false}
+				          message={this.props.data.snackbar}
 				        />
 				</Paper>
 				)
@@ -152,14 +149,19 @@ class AllFiles extends Component {
 	upLoadFile(e) {
 		for (let i=0;i<e.nativeEvent.target.files.length;i++) {
 			var f = e.nativeEvent.target.files[i];
+			var t = new Date();
 			var file = {
 				name:f.name,
 				path:f.path,
 				size:f.size,
-				lastModifiedDate:f.lastModifiedDate
+				lastModifiedDate:f.lastModifiedDate,
+				dir : this.props.data.directory,
+				uploadTime :  Date.parse(t),
+				status:0
+
 			}
-			this.props.dispatch(Action.addUpload(e.nativeEvent.target.files[i]));
-			ipc.send('uploadFile',file,this.props.data.directory);	
+			this.props.dispatch(Action.addUpload(file));
+			ipc.send('uploadFile',file);	
 		}
 		
 	}

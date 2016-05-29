@@ -68,7 +68,7 @@ class leftNav extends Component {
 						<div style={{border:'1px solid black',width:150,height:20,margin:'0 auto'}}>
 							<div style={{width:'50%',backgroundColor:'#666',height:'100%'}}></div>
 						</div>
-						<div style={{textAlign:'center',marginTop:10}}>use 2.5G of 5G</div>
+						<div style={{textAlign:'center',marginTop:10}}>使用 2.5G /共 5G</div>
 					</div>
 					<div>
 						<Menu>

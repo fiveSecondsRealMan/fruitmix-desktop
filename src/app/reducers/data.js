@@ -9,7 +9,9 @@ const defaultDirectory = {
 	menu:{show:false,objArr:[]},
 	detail:[],
 	upload:[],
-	dialogOfFolder: false
+	dowload: [],
+	dialogOfFolder: false,
+	snackbar: '',
 }
 
 const directory = (state=defaultDirectory,action)=> {
@@ -18,7 +20,7 @@ const directory = (state=defaultDirectory,action)=> {
 			let position = action.children.map((item,index)=>{
 				return {top:index*51+58+48+8+64,bottom:(index+1)*51+58+48+8+64}
 			})
-			return Object.assign({}, state,{directory:action.directory,children:action.children,parent:action.parent,path:action.path,position:position,state:'READY'});
+			return Object.assign({}, state,{directory:action.directory,children:action.children,parent:action.parent,path:action.path,position:position,state:'READY',selectAll:false});
 		case 'SELECT_CHILDREN':
 			var allSelected = true;
 			//setSelectedChildren
@@ -30,6 +32,7 @@ const directory = (state=defaultDirectory,action)=> {
 				if (item.checked == false) {
 					allSelected = false;
 				}
+				break;
 			}
 			return Object.assign({},state,{children:newState,selectAll:allSelected})
 		case 'SELECT_ALL_CHILDREN':
@@ -71,6 +74,13 @@ const directory = (state=defaultDirectory,action)=> {
 		case 'ADD_UPLOAD':
 			var upload = state.upload.concat([action.obj]);
 			return Object.assign({},state,{upload:upload});
+		case 'ADD_DOWNLOAD':
+			var dowload = state.dowload.concat([action.obj]);
+			//add property status for each item
+			for (let i =0; i < dowload.length; i++) {
+				dowload[i].status = 0
+			}
+			return Object.assign({},state,{dowload:dowload});
 		case 'REFRESH_DIR':
 			var position = action.obj.map((item,index)=>{
 				return {top:index*51+58+48+8+64,bottom:(index+1)*51+58+48+8+64}
@@ -88,6 +98,39 @@ const directory = (state=defaultDirectory,action)=> {
 			return Object.assign({},state,{upload:a});
 		case 'TOGGLE_DIALOG_FOLDER':
 			return Object.assign({},state,{dialogOfFolder:action.isOpen});
+		case 'REFRESH_STATUS_UPLOAD':
+			var newUploadArr = state.upload;
+			var uploadArrIndex = null;
+			for (let i = 0;i<newUploadArr.length;i++) {
+				if (newUploadArr[i].name == action.file.name) {
+					uploadArrIndex = i;
+					break;
+				}
+				
+			}
+			newUploadArr[uploadArrIndex].status = action.status;
+			if (uploadArrIndex !=null) {
+				return Object.assign({},state,{upload:newUploadArr})
+			}else {
+				return state;
+			}
+		case 'REFRESH_STATUS_DOWNLOAD':
+			var newDownloadArr = state.dowload;
+			var downloadArrIndex = null;
+			for (let i=0;i<newDownloadArr.length;i++) {
+				console.log(newDownloadArr[i].uuid);
+				if (newDownloadArr[i].uuid == action.file.uuid) {
+					downloadArrIndex = i;
+					break;
+				}
+				
+			}
+			newDownloadArr[downloadArrIndex].status = action.status;
+			if (downloadArrIndex !=null) {
+				return Object.assign({},state,{download:newDownloadArr})
+			}else {
+				return state
+			}
 		default:
 			return state
 	}

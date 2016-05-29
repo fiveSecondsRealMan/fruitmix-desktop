@@ -46,7 +46,9 @@ class Main extends Component {
 		var _this = this;
 		ipc.send('getRootData');
 		this.props.dispatch(Action.filesLoading());
-		ipc.on('receive',function (dir,children,parent,path) {
+		ipc.on('receive',function (dir,children,parent,path,tree) {
+			console.log('next is tree!!!!!!!!!!!!!');
+			console.log(tree);
 			_this.props.dispatch(Action.setDirctory(dir,children,parent,path));
 		});
 
@@ -63,13 +65,23 @@ class Main extends Component {
 			console.log(data);
 		});
 
-		ipc.on('uploadSuccess',(file,dir,children)=>{
+		ipc.on('uploadSuccess',(file,children)=>{
 			console.log('uploadSuccess');
+			console.log(file);
+			console.log(children);
 			// this.props.dispatch(Action.removeFile(obj));
-			if (dir.uuid == this.props.data.directory.uuid) {
+			if (file.dir.uuid == this.props.data.directory.uuid) {
 				this.props.dispatch(Action.refreshDir(children));
 			}
 		});
+
+		ipc.on('refreshStatusOfUpload',(file,status)=>{
+			this.props.dispatch(Action.refreshStatusOfUpload(file,status));
+		});
+
+		ipc.on('refreshStatusOfDownload',(file,status)=>{
+			this.props.dispatch(Action.refreshStatusOfDownload(file,status));
+		})
 
 		ipc.on('deleteSuccess',(obj,children,dir)=>{
 			console.log('deleteSuccess');
@@ -101,7 +113,7 @@ class Main extends Component {
 					      hintText="search"
 					      className='search-input'
 					/>
-					<span style={{color:'white'}}>userName</span></div>
+					<span style={{color:'white'}}>admin</span></div>
 				}
 				onLeftIconButtonTouchTap={this.leftNavClick.bind(this)}
 				>

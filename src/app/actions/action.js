@@ -115,6 +115,13 @@ var actions = {
 		}
 	},
 
+	addDownload(obj) {
+		return {
+			type: 'ADD_DOWNLOAD',
+			obj: obj
+		}
+	},
+
 	refreshDir(obj) {
 		return {
 			type: 'REFRESH_DIR',
@@ -133,7 +140,29 @@ var actions = {
 		return {
 			type: 'TOGGLE_DIALOG_FOLDER',
 			isOpen: open
+		}
+	},
 
+	setSnackbar(mess) {
+		return {
+			type: 'SET_SNACKBAR',
+			message: mess
+		}
+	},
+
+	refreshStatusOfUpload(file,status) {
+		return {
+			type: 'REFRESH_STATUS_UPLOAD',
+			file: file,
+			status: status
+		}
+	},
+
+	refreshStatusOfDownload(file,status) {
+		return {
+			type: 'REFRESH_STATUS_DOWNLOAD',
+			file: file,
+			status: status
 		}
 	}
 

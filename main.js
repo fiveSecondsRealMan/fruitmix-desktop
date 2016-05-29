@@ -1,40 +1,28 @@
 'use strict';
-
+//corn module
 var app = require('app');
 var BrowserWindow = require('browser-window');
 var globalShortcut = require('global-shortcut');
 var configuration = require('./configuration');
-var request = require('superagent');
+var request = require('request');
 var http = require('http');
 var ipc = require('ipc');
 var fs = require ('fs');
+var stream = require('stream')
 var mainWindow = null;
 var server = '211.144.201.201:8888';
-// server ='192.168.5.132';
+server ='http://192.168.5.132:80';
+//data
 var user = {};
 var allFiles = null;
 var currentDirectory = {};
 var children = [];
 var parent = {};
 var path = [];
+var tree = {};
 
 
 app.on('ready', function() {
-	// var options = {
-	// 	hostname: '211.144.201.201',
-	// 	port: 8888,
-	// 	path: '/',
-	// 	method: 'GET'
-	// };
-	// var req = http.request(options,function(res){
-	// 	console.log('status: ' + res.statusCode);
-	// 	console.log('HEADERS: ' + JSON.stringify(res.headers));
-	// 	res.setEncoding('utf8');
-	// 	res.on('data',function(chunk) {
-	// 		console.log(chunk);
-	// 	});
-	// })
-	// req.end();
 	if (!configuration.readSettings('shortcutKeys')) {
 		configuration.saveSettings('shortcutKeys', ['ctrl', 'shift']);
 	}
@@ -65,10 +53,10 @@ ipc.on('getRootData', ()=> {
 		children = children.map((item)=>Object.assign({},{checked:false},item));
 		path.length = 0;
 		path.push({key:'',value:{}});
-		mainWindow.webContents.send('receive', currentDirectory,children,parent,path);	
+		let tree = getTree(allFiles);
+		console.log(tree[20]);
+		mainWindow.webContents.send('receive', currentDirectory,children,parent,path,tree);	
 	});
-
-
 });
 
 ipc.on('enterChildren', (event,selectItem) => {
@@ -128,48 +116,72 @@ ipc.on('getFile',(e,uuid)=>{
 	})
 });
 
-ipc.on('uploadFile',(e,file,obj)=>{
-	console.log(file);
-	request
-		.post(server+'/files/'+currentDirectory.uuid+'?type=file')
-		.set('Authorization',user.type+' '+user.token)
-		.attach('file',file.path)  
-		.end((err,res)=>{
-			res.on('data',function() {
-				console.log('111');
-			});
-			if(res.ok) {
-				console.log('res');
-				modifyData(file,obj,res.body);
-			}else{
-				console.log(err);
-				console.log('err');
-			}
-		});
+ipc.on('uploadFile',(e,file)=>{
+	var body = 0;
+	var t = 0;
+	var interval = setInterval(function() {
+		var upLoadProcess = body/file.size;
+		mainWindow.webContents.send('refreshStatusOfUpload',file,upLoadProcess);
+		if (upLoadProcess >= 1) {
+			clearInterval(interval);
+		}
+	},500);
+	var transform = new stream.Transform({
+		transform: function(chunk, encoding, next) {
+			body+=chunk.length;
+			this.push(chunk)
+			next();
+		}
+	})
 
-		// var stream = fs.createReadStream(file.path);
-		// var req = request
-		// .post(server+'/files/'+currentDirectory.uuid+'?type=file')
-		// .set('Authorization',user.type+' '+user.token);
+	function callback (err,res,body) {
+		console.log('err');
+		console.log(err);
+		console.log('body');
+		console.log(body);
+		if (!err && res.statusCode == 200) {
+			var uuid = body;
+			uuid = uuid.slice(1,uuid.length-1);
+			modifyData(file,uuid);
+		}else {
+			console.log(err);
+			reject(err)
+		}
+	}
 
-		// stream.pipe(req);
+	var fakeserver = 'http://127.0.0.1:23456'
+
+	var r = request.post(server+'/files/'+currentDirectory.uuid+'?type=file',{
+		headers: {
+			Authorization: user.type+' '+user.token
+		},
+	},callback)
+
+	var form = r.form();
+	var tempStream = fs.createReadStream(file.path).pipe(transform)
+	tempStream.path = file.path
+	form.append('file', tempStream);	
 });
 
 ipc.on('upLoadFolder',(e,name,dir)=>{
-	request
-		.post(server+'/files/'+dir.uuid+'?type=folder')
-		.set('Authorization',user.type+' '+user.token)
-		.send({foldername:name})
-		.end((err,res)=>{
-			if (res.ok) {
-				console.log('res');
-				console.log(res);
-				modifyFolder(name,dir,res.body);
-			}else {
-				console.log('err');
-				console.log(err);
-			}
-		})
+
+	var r = request.post(server+'/files/'+dir.uuid+'?type=folder',{
+		headers: {
+			Authorization: user.type+' '+user.token
+		},
+	},function (err,res,body) {
+		if (!err && res.statusCode == 200) {
+			console.log('res');
+			var uuid = body;
+			uuid = uuid.slice(1,uuid.length-1);
+			modifyFolder(name,dir,uuid);
+		}else {
+			console.log('err');
+			console.log(err);
+		}
+	});
+	var form = r.form();
+	form.append('foldername',name);
 });
 
 ipc.on('refresh',(e,uuid)=>{
@@ -212,34 +224,57 @@ ipc.on('rename',(e,uuid,name,oldName)=>{
 	})
 })
 
-ipc.on('dowload',(e,arr)=>{
-	for (let item of arr) {
-		dowload(item).then(data=>{
-			var stream = fs.createWriteStream(item.attribute.name);
-			data.pipe(stream);
+ipc.on('download',(e,file)=>{
+		download(file).then(data=>{
+			console.log(file.attribute.name + ' download success');
 		});
-	}
 })
+
+ipc.on('close-main-window', function () {
+    app.quit();
+});
 
 function login(username,password) {
 	let login = new Promise((resolve,reject)=>{
-		request.get(server+'/login').end((err,res)=>{
-			if (res.ok) {
-				resolve(eval(res.body));
+		// request.get(server+'/login').end((err,res)=>{
+		// 	if (res.ok) {
+		// 		resolve(eval(res.body));
+		// 	}else {
+		// 		reject(err);
+		// 	}
+		// });
+
+		request(server+'/login',function(err,res,body){
+			if (!err && res.statusCode == 200) {
+				resolve(eval(body));
 			}else {
-				reject(err);
+				reject(err)
 			}
-		});
+		})
 	});
 	return login;
 }
 function getToken(uuid,password) {
 	let a = new Promise((resolve,reject)=>{
-		request.get(server+'/token').auth(uuid,'123456' ).end((err,res)=>{
-			if (res.ok) {
-				resolve(eval(res.body));
+		// request.get(server+'/token').auth(uuid,'123456' ).end((err,res)=>{
+		// 	if (res.ok) {
+		// 		resolve(eval(res.body));
+		// 	}else {
+		// 		reject(err);
+		// 	}
+		// });
+
+		request.get(server+'/token',{
+			'auth': {
+			    'user': uuid,
+			    'pass': '123456',
+			    'sendImmediately': false
+			  }
+		},function(err,res,body) {
+			if (!err && res.statusCode == 200) {
+				resolve(JSON.parse(body));
 			}else {
-				reject(err);
+				reject(err)
 			}
 		});
 	});
@@ -263,121 +298,180 @@ function getFile(uuid) {
 }
 
 function getFiles() {
-	var files = new Promise((resolve,reject)=>{
-		// request
-		// 	.get(server+'/files')
-		// 	.set('Authorization',user.type+' '+user.token)
-		// 	.end((err,res)=>{
-		// 		res.on('data',(chunk)=>{
-		// 			console.log(chunk);
-		// 			console.log(chunk);
-		// 		})
-		// 		if(res.ok) {
-		// 			resolve(eval(res.body));
-		// 		}else {
-		// 			reject(err);
-		// 		}
-		// 	});
-
+	var files = new Promise((resolve,reject)=>{ 
 			var options = {
-				hostname: '211.144.201.201',
-				port: 8888,
-				path: '/files',
 				method: 'GET',
+				url: server+'/files',
 				headers: {
 					Authorization: user.type+' '+user.token
 				}
+
 			};
-			var req = http.request(options,function(res){
-				var body = '';
-				res.setEncoding('utf8');
-				res.on('data',function(chunk) {
-					console.log('chunk');
-					body += chunk;
-				});
-				res.on('end',function(){
-					console.log('end');
-					resolve(eval(body));
-				});
-			})
-			req.end();
+
+			function callback (err,res,body) {
+				if (!err && res.statusCode == 200) {
+					resolve(JSON.parse(body));
+				}else {
+					reject(err)
+				}
+			}
+
+			request(options,callback);
 	});
 	return files;
 }
 
+function getTree(f) {
+	let files = f.map((item)=>{
+		return {
+			uuid:item.uuid,
+			name:item.attribute.name,
+			parent: item.parent,
+			children: item.children
+		}
+	});
+	// console.log(files);
+	let tree = files.map((node,index)=>{
+		node.parent = files.find((item1)=>{return (item1.uuid == node.parent)});
+		node.children = files.filter((item2)=>{return (item2.parent == node.uuid)});
+		// console.log(node);
+		return node
+	});
+	return tree;
+}
+
 function deleteFile(obj) {
 	var deleteF = new Promise((resolve,reject)=>{
-			request
-				.delete(server+'/files/'+obj.uuid)
-				.set('Authorization',user.type+' '+user.token)
-				.end((err,res)=>{
-					if (res.ok) {
-						console.log('res');
-						resolve();
-					}else {
-						console.log('err');
-						console.log(err);
-						reject();
-					}
-				});
+			var options = {
+				method: 'delete',
+				url: server+'/files/'+obj.uuid,
+				headers: {
+					Authorization: user.type+' '+user.token
+				}
+
+			};
+
+			function callback (err,res,body) {
+				if (!err && res.statusCode == 200) {
+					console.log('res');
+					console.log(body)
+					resolve(JSON.parse(body));
+				}else {
+					console.log('err');
+					console.log(res);
+					console.log(err);
+					reject(err)
+				}
+			}
+
+			request(options,callback);
+
 	});
 	return deleteF;
 }
 
 function rename(uuid,name,oldName) {
 	let rename = new Promise((resolve,reject)=>{
-		request
-			.patch(server+'/files/'+uuid)
-			.set('Authorization',user.type+' '+user.token)
-			.send({filename:name})
-			.end((err,res)=>{
-				if (res.ok) {
-					console.log('res');
-				}else {
-					console.log(err);
+		// request
+		// 	.patch(server+'/files/'+uuid)
+		// 	.set('Authorization',user.type+' '+user.token)
+		// 	.send({filename:name})
+		// 	.end((err,res)=>{
+		// 		if (res.ok) {
+		// 			console.log('res');
+		// 		}else {
+		// 			console.log(err);
+		// 		}
+		// 	})
+
+		var options = {
+			method: 'patch',
+			url: server+'/files/'+uuid,
+			headers: {
+					Authorization: user.type+' '+user.token
 				}
-			})
+		};
+
+		function callback (err,res,body) {
+			console.log(res);
+				if (!err && res.statusCode == 200) {
+					console.log('res');
+					resolve(body);
+				}else {
+					console.log('err');
+					console.log(err);
+					reject(err)
+				}
+			}
+
+		var r = request(options,callback);
+		var form = r.form();
+		form.append('filename',name);
 	});
 	return rename;
 }
 
-function dowload(item) {
-	var dowload = new Promise((resolve,reject)=>{
-		request
-			.get(server+'/files/'+item.uuid+'?type=media')
-			.set('Accept','application/json')
-			.set('Authorization',user.type+' '+user.token)
-			.set('Content-Type','text/plain')
-			.end((err,res)=>{
-				res.on('data',function(){
-					console.log('11');
-				});
-				if (res.ok) {
-					console.log('res');
-					resolve(res.body);
-
-				}else {
-					console.log(err);
-					console.log('err');
+function download(item) {
+	var download = new Promise((resolve,reject)=>{
+			var body = 0;
+			var options = {
+				method: 'GET',
+				url: server+'/files/'+item.uuid+'?type=media',
+				headers: {
+					Authorization: user.type+' '+user.token
 				}
-			});
-	})
-		return dowload;
-	}
+			};
 
-function modifyData(file,obj,uuid) {
+			function callback (err,res,body) {
+				if (!err && res.statusCode == 200) {
+					console.log('res');
+					// console.log(res);
+					resolve(body);
+				}else {
+					// reject(err)
+					console.log('err');
+					console.log(err);
+				}
+			}
+			var stream = fs.createWriteStream('download/'+item.attribute.name);
+
+			var interval = setInterval(function() {
+				var upLoadProcess = body/item.attribute.size;
+				mainWindow.webContents.send('refreshStatusOfDownload',item,upLoadProcess);
+				if (upLoadProcess >= 1) {
+					resolve();
+					clearInterval(interval);
+				}
+			},500);
+
+			request(options,callback).on('data',function(d){
+				body += d.length;
+			}).pipe(stream);
+			
+			var transform = new stream.Transform({
+				transform: function(chunk, encoding, next) {
+					body+=chunk.length;
+					this.push(chunk)
+					next();
+				}
+			});	
+	})
+	return download;
+}
+
+function modifyData(file,uuid) {
 	//modify allfiles
 		for (let item of allFiles) {
-			if (item.uuid == obj.uuid) {
+			if (item.uuid == file.dir.uuid) {
 				item.children.push(uuid);
 				break;
 			}
 		}
 
-		var obj = {
+		var f= {
 			uuid:uuid,
-			path: obj.path+'/'+file.name,
-			parent: obj.uuid,
+			path: file.dir.path+'/'+file.name,
+			parent: file.dir.uuid,
 			hash:file.path,
 			checked: false,
 			attribute: {
@@ -385,23 +479,44 @@ function modifyData(file,obj,uuid) {
 				size:file.size	,
 				changetime: "2016-04-25T10:31:52.089Z",
       				createtime: "2016-04-25T10:31:52.089Z",
-			}
+			},
+			type: 'file'
 		}
-		allFiles.push(obj);
-		if (currentDirectory.uuid == obj.uuid) {
-			children.push(obj);
+		allFiles.push(f);
+		if (currentDirectory.uuid == file.dir.uuid) {
+			children.push(f);
 		}
-		mainWindow.webContents.send('uploadSuccess',file,obj,children)
+		mainWindow.webContents.send('uploadSuccess',file,children)
 }
 	
-	function modifyFolder(name,dir,folderuuid) {
-		for (let item of allFiles) {
-			if (item.uuid == dir.uuid) {
-				item.children.push(folderuuid);
-				break;
-			}
+function modifyFolder(name,dir,folderuuid) {
+	for (let item of allFiles) {
+		if (item.uuid == dir.uuid) {
+			console.log('1');
+			item.children.push(folderuuid);
+			break;
 		}
-		let obj = {
+	}
+	var folder = {
+		uuid:folderuuid,
+		path: dir.path+'/'+name,
+		parent: dir.uuid,
+		hash:dir.path+'/'+name,
+		checked: false,
+		attribute: {
+			name:name,
+			size: 4096,
+			changetime: "2016-04-25T10:31:52.089Z",
+			createtime: "2016-04-25T10:31:52.089Z",
+		},
+		type: 'folder',
+		dir:dir,
+		children:[]
+	}
+	allFiles.push(folder);
+	if (currentDirectory.uuid == dir.uuid) {
+		console.log('2');
+		children.push({
 			uuid:folderuuid,
 			path: dir.path+'/'+name,
 			parent: dir.uuid,
@@ -409,17 +524,18 @@ function modifyData(file,obj,uuid) {
 			checked: false,
 			attribute: {
 				name:name,
-				size:null	,
+				size: 4096,
 				changetime: "2016-04-25T10:31:52.089Z",
-      				createtime: "2016-04-25T10:31:52.089Z",
-			}
-		}
-		allFiles.push(obj);
-		if (currentDirectory.uuid == dir.uuid) {
-			children.push(obj);
-		}
-		mainWindow.webContents.send('uploadSuccess',name,dir,children)
+				createtime: "2016-04-25T10:31:52.089Z",
+			},
+			type: 'folder',
+			dir:dir,
+			children:[]
+		});
 	}
+	console.log(children)
+	mainWindow.webContents.send('uploadSuccess',folder,children)
+}
 
 
 
@@ -438,9 +554,7 @@ function modifyData(file,obj,uuid) {
 //     });
 // }
 
-// ipc.on('close-main-window', function () {
-//     app.quit();
-// });
+
 
 // ipc.on('open-settings-window', function () {
 //     if (settingsWindow) {

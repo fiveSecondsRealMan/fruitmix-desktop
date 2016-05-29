@@ -27,9 +27,9 @@ class AllFilesTable extends Component {
 								<div></div>
 							</div>
 						</th>
-						<th>name</th>
-						<th>update time</th>
-						<th>size</th>
+						<th>名称</th>
+						<th>修改时间</th>
+						<th>大小</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -47,9 +47,9 @@ class AllFilesTable extends Component {
 										<div></div>
 									</div>
 								</td>
-								<td title={item.attribute.name}><div data-uuid={item.uuid}>{item.attribute.name}</div></td>
-								<td title={item.attribute.changetime}>{item.attribute.changetime}</td>
-								<td title={item.attribute.size}>{item.attribute.size}</td>
+								<td title={item.attribute.name}><div data-uuid={item.uuid}><span className={'file-type-icon '+this.getTypeOfFile(item)}></span><span className='file-name'>{item.attribute.name}</span></div></td>
+								<td title={item.attribute.changetime}>{this.getTime(item.attribute.changetime)}</td>
+								<td title={item.attribute.size}>{this.getSize(item.attribute.size)}</td>
 							</tr>
 							)
 					})}
@@ -113,6 +113,59 @@ class AllFilesTable extends Component {
 
 	selectAllChildren() {
  		this.props.dispatch(Action.selectAllChildren());
+	}
+
+	getTime(date) {
+		let t = date.indexOf('T');
+		let d = date.substring(0,t);
+		let time = date.substring(t+1,t+9);
+		return  d+' '+time;
+	}
+
+	getSize(size) {
+		size = parseFloat(size);
+		if (size < 1024) {
+			return size.toFixed(2)+' B'
+		}else if (size < 1024*1024) {
+			return (size/1024).toFixed(2)+' KB'
+		}else if(size<1024*1024*1024) {
+			return (size/1024/1024).toFixed(2)+ ' M'
+		}else {
+			return (size/1024/1024/1024).toFixed(2)+ ' G'
+		}
+	}
+
+	getTypeOfFile(file){
+		if (file.type == 'folder') {
+			return 'folder'
+		}
+
+		let arr = [
+		{type:'txt',reg: new RegExp("^.*\\.txt$")},
+		{type:'doc',reg:new RegExp("^.*\\.doc$")},
+		{type:'docx',reg:new RegExp("^.*\\.docx$")},
+		{type:'wps',reg:new RegExp("^.*\\.wps$")},
+		{type:'ppt',reg:new RegExp("^.*\\.ppt$")},
+		{type:'pptx',reg:new RegExp("^.*\\.pptx$")},
+		{type:'xls',reg:new RegExp("^.*\\.xls$")},
+		{type:'psd',reg:new RegExp("^.*\\.psd$")},
+		{type:'pdf',reg:new RegExp("^.*\\.pdf$")},
+		{type:'jpg',reg:new RegExp("^.*\\.jpg$")},
+		{type:'png',reg:new RegExp("^.*\\.png$")},
+		{type:'gif',reg:new RegExp("^.*\\.gif$")},
+		{type:'mp3',reg:new RegExp("^.*\\.mp3$")},
+		{type:'mp4',reg:new RegExp("^.*\\.mp4$")}
+		];
+
+		for (let i =0;i<arr.length;i++) {
+			if (arr[i].reg.test(file.attribute.name)) {
+				return arr[i].type
+			}
+		}
+		return 'file'
+
+
+		
 	}
 }
 

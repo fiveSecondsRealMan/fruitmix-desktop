@@ -55,7 +55,6 @@ class PopMenu extends Component {
 		$('div[data-uuid='+uuid+']').attr('contenteditable','true').focus(function(){
 			var sel,range;
 			if (window.getSelection && document.createRange) {
-				console.log('focus1');
 				range = document.createRange();
 				range.selectNodeContents(editor);
 				range.collapse(true);
@@ -65,27 +64,25 @@ class PopMenu extends Component {
 				sel.removeAllRanges();
 				sel.addRange(range);
 			} else if (document.body.createTextRange) {
-				console.log('focus2');
 				range = document.body.createTextRange();
 				range.moveToElementText(editor);
 				range.collapse(true);
 				range.select();
+			}
+		}).keydown(function(e){
+			console.log(e.keyCode);
+			if (e.keyCode) {
+				$(this).trigger('blur');
 			}
 		}).blur(function() {
 			$(this).attr('contenteditable','false');
 			let name = dom.innerHTML;
 			ipc.send('rename',uuid,name,oldName);
 		});
-		// dom.focus();
-		// var time = setInterval(function() {
-		// 	dom.focus();
-		// },10);
 
 		setTimeout(function(){
 			dom.focus();
 		},0)
-
-		// setTimeout(function(){clearInterval(time)},100)
 	}
 
 	moveto() {
@@ -104,18 +101,23 @@ class PopMenu extends Component {
 				arr.push(item);
 			}
 		}
+		console.log(arr[0].uuid);
 		ipc.send('delete',arr,this.props.data.directory);
 	}
 
 	dowload() {
 		let arr = [];
 		arr.push(this.props.data.menu.objArr[0]);
-		// for (let item of this.props.data.children) {
-		// 	if (item.checked&&item.uuid!=arr[0].uuid) {
-		// 		arr.push(item);
-		// 	}
-		// }
-		ipc.send('dowload',arr);
+		for (let item of this.props.data.children) {
+			if (item.checked&&item.uuid!=arr[0].uuid) {
+				arr.push(item);
+			}
+		}
+		arr.forEach((item,index)=>{
+			this.props.dispatch(Action.addDownload(item));
+			ipc.send('download',item);	
+		});
+		
 	}
 
 	triggerClick(e) {
