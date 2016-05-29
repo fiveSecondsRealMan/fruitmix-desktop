@@ -1,31 +1,31 @@
 'use strict';
 //corn module
-var app = require('app');
-var BrowserWindow = require('browser-window');
-var globalShortcut = require('global-shortcut');
+const electron = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 var configuration = require('./configuration');
 var request = require('request');
 var http = require('http');
-var ipc = require('ipc');
 var fs = require ('fs');
 var stream = require('stream')
 var mainWindow = null;
-var server = '211.144.201.201:8888';
-server ='http://192.168.5.132:80';
-//data
+var server = 'http://211.144.201.201:8888';
+// server ='http://192.168.5.132:80';
+//user
 var user = {};
+//files
 var allFiles = null;
+var tree = {};
+var map = new Map();
+//directory
 var currentDirectory = {};
 var children = [];
 var parent = {};
 var path = [];
-var tree = {};
 
 
+
+//app ready and open window
 app.on('ready', function() {
-	if (!configuration.readSettings('shortcutKeys')) {
-		configuration.saveSettings('shortcutKeys', ['ctrl', 'shift']);
-	}
 	mainWindow = new BrowserWindow({
 		frame: true,
 		height: 768,
@@ -33,10 +33,10 @@ app.on('ready', function() {
 		width: 1366
 	});
 	mainWindow.webContents.openDevTools();
-	mainWindow.loadUrl('file://' + __dirname + '/ele/index.html');
+	mainWindow.loadURL('file://' + __dirname + '/ele/index.html');
 });
-
-ipc.on('login',function(event,username,password){
+//get all user information
+ipcMain.on('login',function(event,username,password){
 	login().then((data)=>{
 		user = Object.assign({},user,data[0]);
 		return getToken(data[0].uuid);
@@ -45,21 +45,21 @@ ipc.on('login',function(event,username,password){
 		mainWindow.webContents.send('loggedin',user);
 	});
 });
-
-ipc.on('getRootData', ()=> {
+//get all files
+ipcMain.on('getRootData', ()=> {
 	getFiles().then((data)=>{
 		allFiles = data;
 		children = data.filter(item=>item.parent=='');
 		children = children.map((item)=>Object.assign({},{checked:false},item));
 		path.length = 0;
 		path.push({key:'',value:{}});
+		mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
 		let tree = getTree(allFiles);
-		console.log(tree[20]);
-		mainWindow.webContents.send('receive', currentDirectory,children,parent,path,tree);	
+		mainWindow.webContents.send('setTree',tree[0]);
 	});
 });
 
-ipc.on('enterChildren', (event,selectItem) => {
+ipcMain.on('enterChildren', (event,selectItem) => {
 	//parent
 	var parentUUID = selectItem.parent;
 	var parentObj = {};
@@ -110,13 +110,13 @@ ipc.on('enterChildren', (event,selectItem) => {
 	}
 });
 
-ipc.on('getFile',(e,uuid)=>{
+ipcMain.on('getFile',(e,uuid)=>{
 	getFile(uuid).then((data)=>{
 		mainWindow.webContents.send('receiveFile',data);
 	})
 });
 
-ipc.on('uploadFile',(e,file)=>{
+ipcMain.on('uploadFile',(e,file)=>{
 	var body = 0;
 	var t = 0;
 	var interval = setInterval(function() {
@@ -163,7 +163,7 @@ ipc.on('uploadFile',(e,file)=>{
 	form.append('file', tempStream);	
 });
 
-ipc.on('upLoadFolder',(e,name,dir)=>{
+ipcMain.on('upLoadFolder',(e,name,dir)=>{
 
 	var r = request.post(server+'/files/'+dir.uuid+'?type=folder',{
 		headers: {
@@ -184,7 +184,7 @@ ipc.on('upLoadFolder',(e,name,dir)=>{
 	form.append('foldername',name);
 });
 
-ipc.on('refresh',(e,uuid)=>{
+ipcMain.on('refresh',(e,uuid)=>{
 	getFiles().then((data)=>{
 		allFiles = data;
 		//children
@@ -199,7 +199,7 @@ ipc.on('refresh',(e,uuid)=>{
 	});
 });
 
-ipc.on('delete',(e,objArr,dir)=>{
+ipcMain.on('delete',(e,objArr,dir)=>{
 	for (let item of objArr) {
 		deleteFile(item).then(()=>{
 			//delete file in data
@@ -218,32 +218,24 @@ ipc.on('delete',(e,objArr,dir)=>{
 	}
 });
 
-ipc.on('rename',(e,uuid,name,oldName)=>{
+ipcMain.on('rename',(e,uuid,name,oldName)=>{
 	rename(uuid,name,oldName).then(()=>{
 		console.log('ok');
 	})
 })
 
-ipc.on('download',(e,file)=>{
+ipcMain.on('download',(e,file)=>{
 		download(file).then(data=>{
 			console.log(file.attribute.name + ' download success');
 		});
 })
 
-ipc.on('close-main-window', function () {
+ipcMain.on('close-main-window', function () {
     app.quit();
 });
 
 function login(username,password) {
 	let login = new Promise((resolve,reject)=>{
-		// request.get(server+'/login').end((err,res)=>{
-		// 	if (res.ok) {
-		// 		resolve(eval(res.body));
-		// 	}else {
-		// 		reject(err);
-		// 	}
-		// });
-
 		request(server+'/login',function(err,res,body){
 			if (!err && res.statusCode == 200) {
 				resolve(eval(body));
@@ -256,14 +248,6 @@ function login(username,password) {
 }
 function getToken(uuid,password) {
 	let a = new Promise((resolve,reject)=>{
-		// request.get(server+'/token').auth(uuid,'123456' ).end((err,res)=>{
-		// 	if (res.ok) {
-		// 		resolve(eval(res.body));
-		// 	}else {
-		// 		reject(err);
-		// 	}
-		// });
-
 		request.get(server+'/token',{
 			'auth': {
 			    'user': uuid,
@@ -334,7 +318,7 @@ function getTree(f) {
 	let tree = files.map((node,index)=>{
 		node.parent = files.find((item1)=>{return (item1.uuid == node.parent)});
 		node.children = files.filter((item2)=>{return (item2.parent == node.uuid)});
-		// console.log(node);
+		map.set(node.uuid,node);
 		return node
 	});
 	return tree;
