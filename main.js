@@ -54,7 +54,7 @@ ipc.on('getRootData', ()=> {
 		path.length = 0;
 		path.push({key:'',value:{}});
 		let tree = getTree(allFiles);
-		console.log(tree[20]);
+		console.log(tree);
 		mainWindow.webContents.send('receive', currentDirectory,children,parent,path,tree);	
 	});
 });
