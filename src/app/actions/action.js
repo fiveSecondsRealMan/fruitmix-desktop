@@ -34,13 +34,19 @@ var actions = {
 	},
 
 	setDirctory(dir,children,parent,path) {
-		
 		return {
 			type: 'SET_DIRECTORY',
 			directory: dir,
 			children: children,
 			parent: parent,
 			path:path
+		}
+	},
+
+	setTree(tree) {
+		return {
+			type: 'SET_TREE',
+			tree: tree
 		}
 	},
 
@@ -140,13 +146,6 @@ var actions = {
 		return {
 			type: 'TOGGLE_DIALOG_FOLDER',
 			isOpen: open
-		}
-	},
-
-	setSnackbar(mess) {
-		return {
-			type: 'SET_SNACKBAR',
-			message: mess
 		}
 	},
 

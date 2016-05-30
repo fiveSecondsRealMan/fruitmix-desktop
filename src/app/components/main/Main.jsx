@@ -46,12 +46,20 @@ class Main extends Component {
 		var _this = this;
 		ipc.send('getRootData');
 		this.props.dispatch(Action.filesLoading());
-		ipc.on('receive',function (dir,children,parent,path,tree) {
-			console.log('next is tree!!!!!!!!!!!!!');
-			console.log(tree);
+		ipc.on('receive',function (err,dir,children,parent,path) {
+			console.log('dir');
+			console.log(dir);
+			console.log('children');
+			console.log(children);
+			console.log('parent');
+			console.log(parent);
+			console.log('path');
+			console.log(path);
 			_this.props.dispatch(Action.setDirctory(dir,children,parent,path));
 		});
-
+		ipc.on('setTree',(err,tree)=>{
+			this.props.dispatch(Action.setTree(tree));
+		});
 		ipc.on('receiveFile',(data)=>{
 			console.log(data);
 		});
@@ -134,7 +142,66 @@ class Main extends Component {
 		 e.preventDefault(); e.stopPropagation();
 		if (this.props.multiple.multiple.isShow == true&&this.props.data.state != 'BUSY') {
 			this.props.dispatch(Action.mouseMove(e.nativeEvent.x,e.nativeEvent.y));
-			let mul = this.props.multiple.multiple;
+			// let mul = this.props.multiple.multiple;
+ 		// 	let height = Math.abs(mul.top-mul.height);;
+ 		// 	let part = Math.ceil(height/51);
+ 		// 	let top = Math.min(mul.top,mul.height)+document.getElementsByClassName('file-area')[0].scrollTop;
+ 		// 	let bottom = Math.max(mul.top,mul.height)+document.getElementsByClassName('file-area')[0].scrollTop;
+
+ 		// 	let position = this.props.data.position;
+ 		// 	for (let i = 0;i < position.length; i++) {
+ 		// 		if (position[i].bottom<top) {
+ 		// 			if (this.props.data.children[i].checked == true) {
+ 		// 				this.props.dispatch(Action.selectChildren(i));	
+ 		// 			}
+ 		// 			continue;
+ 		// 		}
+ 		// 		if (position[i].bottom>top&&position[i].top<top) {
+ 		// 			if (this.props.data.children[i].checked == false) {
+ 		// 				this.props.dispatch(Action.selectChildren(i));	
+ 		// 				if (this.props.data.detail.length!=0) {
+ 		// 					this.props.dispatch(Action.setDetail([this.props.data.children[i]]));
+ 		// 				}
+ 						
+ 		// 			}
+
+ 		// 			continue;
+ 		// 		}
+ 		// 		if (position[i].bottom<bottom&&position[i].top>top) {
+ 		// 			if (this.props.data.children[i].checked == false) {
+ 		// 				this.props.dispatch(Action.selectChildren(i));	
+ 		// 				if (this.props.data.detail.length!=0) {
+ 		// 					this.props.dispatch(Action.setDetail([this.props.data.children[i]]));
+ 		// 				}
+ 		// 			}
+ 		// 			continue;
+ 		// 		}
+ 		// 		if (position[i].top<bottom&&position[i].bottom>bottom) {
+ 		// 			if (this.props.data.children[i].checked == false) {
+ 		// 				this.props.dispatch(Action.selectChildren(i));	
+ 		// 				if (this.props.data.detail.length!=0) {
+ 		// 					this.props.dispatch(Action.setDetail([this.props.data.children[i]]));
+ 		// 				}
+ 		// 			}
+ 		// 			continue;
+ 		// 		}
+ 		// 		if (position[i].top>bottom) {
+ 		// 			if (this.props.data.children[i].checked == true) {
+ 		// 				this.props.dispatch(Action.selectChildren(i));	
+ 		// 			}
+ 		// 			continue;	
+ 		// 		}
+ 		// 	}
+
+
+			// var num = [];
+			// var dis = this.props.data.multiple;
+			
+		}
+	}
+
+	mouseUp() {
+		let mul = this.props.multiple.multiple;
  			let height = Math.abs(mul.top-mul.height);;
  			let part = Math.ceil(height/51);
  			let top = Math.min(mul.top,mul.height)+document.getElementsByClassName('file-area')[0].scrollTop;
@@ -188,11 +255,6 @@ class Main extends Component {
 
 			var num = [];
 			var dis = this.props.data.multiple;
-			
-		}
-	}
-
-	mouseUp() {
 		if (this.props.multiple.multiple.isShow == true) {
 			this.props.dispatch(Action.mouseUp());
 		}

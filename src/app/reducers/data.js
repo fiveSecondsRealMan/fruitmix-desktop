@@ -1,17 +1,27 @@
 const defaultDirectory = {
-	state: 'READY', // READY, BUSY, REJECTED, ERROR
+	state: 'READY', // READY, BUSY, REJECTED, ERRO
+
 	directory: {},
 	children:[],
 	parent: [],
 	path:[],
+	tree:[],
+
 	selectAll:false, 
 	position:[],
 	menu:{show:false,objArr:[]},
 	detail:[],
+	dialogOfFolder: false,
+
 	upload:[],
 	dowload: [],
+
 	dialogOfFolder: false,
 	snackbar: '',
+
+
+	
+
 }
 
 const directory = (state=defaultDirectory,action)=> {
@@ -21,6 +31,10 @@ const directory = (state=defaultDirectory,action)=> {
 				return {top:index*51+58+48+8+64,bottom:(index+1)*51+58+48+8+64}
 			})
 			return Object.assign({}, state,{directory:action.directory,children:action.children,parent:action.parent,path:action.path,position:position,state:'READY',selectAll:false});
+
+		case 'SET_TREE':
+			return Object.assign({},state,{tree:action.tree});	
+
 		case 'SELECT_CHILDREN':
 			var allSelected = true;
 			//setSelectedChildren
