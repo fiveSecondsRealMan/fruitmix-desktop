@@ -64,12 +64,7 @@ class leftNav extends Component {
 				})}
 				</Menu>
 				<div style={{position:'absolute',bottom:0,width:'100%'}}>
-					<div style={{marginBottom:100}}>
-						<div style={{border:'1px solid black',width:150,height:20,margin:'0 auto'}}>
-							<div style={{width:'50%',backgroundColor:'#666',height:'100%'}}></div>
-						</div>
-						<div style={{textAlign:'center',marginTop:10}}>使用 2.5G /共 5G</div>
-					</div>
+					
 					<div>
 						<Menu>
 							{this.props.nav.nav.map((item,index) => (

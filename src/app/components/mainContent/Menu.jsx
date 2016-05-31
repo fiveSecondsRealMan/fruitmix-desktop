@@ -49,10 +49,10 @@ class PopMenu extends Component {
 
 	rename() {
 		let uuid = this.props.data.menu.objArr[0].uuid;
-		let dom = $('div[data-uuid='+uuid+']')[0];
+		let dom = $('div[data-uuid='+uuid+']>span:eq(1)')[0];
 		let oldName = dom.innerHTML;
 		var editor = dom;
-		$('div[data-uuid='+uuid+']').attr('contenteditable','true').focus(function(){
+		$('div[data-uuid='+uuid+']>span:eq(1)').attr('contenteditable','true').focus(function(){
 			var sel,range;
 			if (window.getSelection && document.createRange) {
 				range = document.createRange();
@@ -71,7 +71,7 @@ class PopMenu extends Component {
 			}
 		}).keydown(function(e){
 			console.log(e.keyCode);
-			if (e.keyCode) {
+			if (e.keyCode == 13) {
 				$(this).trigger('blur');
 			}
 		}).blur(function() {

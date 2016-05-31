@@ -12,9 +12,10 @@ var stream = require('stream')
 var mainWindow = null;
 
 var server = 'http://211.144.201.201:8888';
-// server ='http://192.168.5.132:80';
+server ='http://192.168.5.132:80';
 //user
 
+var allUser = [];
 var user = {};
 //files
 var allFiles = null;
@@ -26,8 +27,7 @@ var children = [];
 var parent = {};
 var path = [];
 var tree = {};
-
-
+var time = 0
 
 //app ready and open window
 app.on('ready', function() {
@@ -43,11 +43,17 @@ app.on('ready', function() {
 //get all user information
 ipcMain.on('login',function(event,username,password){
 	login().then((data)=>{
-		user = Object.assign({},user,data[0]);
-		return getToken(data[0].uuid);
+		user = data.find((item)=>{return item.username == username});
+		return getToken(user.uuid,password);
 	}).then((token)=>{
-		user = Object.assign({},user,token);
-		mainWindow.webContents.send('loggedin',user);
+		user.token = token.token;
+		user.type = token.type;
+		return getAllUser();
+	}).then((users)=>{
+		allUser = users
+		mainWindow.webContents.send('loggedin',user,allUser);
+	}).catch((err)=>{
+		mainWindow.webContents.send('loginFailed');
 	});
 });
 //get all files
@@ -56,9 +62,6 @@ ipcMain.on('getRootData', ()=> {
 		allFiles = data;
 		children = data.filter(item=>item.parent=='');
 		children = children.map((item)=>Object.assign({},{checked:false},item));
-		path.length = 0;
-		path.push({key:'',value:{}});
-
 		mainWindow.webContents.send('receive', currentDirectory,children,parent,path);
 		let tree = getTree(allFiles);
 		mainWindow.webContents.send('setTree',tree[0]);
@@ -88,27 +91,16 @@ ipcMain.on('enterChildren', (event,selectItem) => {
 		}
 	}
 	children = children.map((item)=>Object.assign({},{checked:false},item));
+	getChildren(selectItem);
 	//path
+
 	try {
 		path.length = 0;
-		var pathArr = selectItem.path.split('/');
-		var pathObj = [];
-		var getParentPath = function (obj) {
-			pathObj.unshift(obj);
-			if (obj.parent) {
-				for (let item of allFiles) {
-					if (item.uuid == obj.parent) {
-						getParentPath(item);
-					}
-				}
-			}else {
-				pathObj.unshift({});
-			}
-		}
-		getParentPath(selectItem);
-		for (let i = 0;i<pathArr.length;i++) {
-			path.push({key:pathArr[i],value:pathObj[i]});
-		}
+		time = 0;
+		let obj = map.get(selectItem.uuid);
+		getPath(obj);
+		console.log('path!!!');
+	console.log(path);
 	}catch(e) {
 		console.log(e);        
 		path.length=0;
@@ -122,7 +114,6 @@ ipcMain.on('getFile',(e,uuid)=>{
 		mainWindow.webContents.send('receiveFile',data);
 	})
 });
-
 
 ipcMain.on('uploadFile',(e,file)=>{
 
@@ -171,7 +162,6 @@ ipcMain.on('uploadFile',(e,file)=>{
 	tempStream.path = file.path
 	form.append('file', tempStream);	
 });
-
 
 ipcMain.on('upLoadFolder',(e,name,dir)=>{
 
@@ -235,22 +225,18 @@ ipcMain.on('rename',(e,uuid,name,oldName)=>{
 	})
 })
 
-
 ipcMain.on('download',(e,file)=>{
-
-		download(file).then(data=>{
-			console.log(file.attribute.name + ' download success');
-		});
+	download(file).then(data=>{
+		console.log(file.attribute.name + ' download success');
+	});
 })
-
 
 ipcMain.on('close-main-window', function () {
     app.quit();
 });
 
-function login(username,password) {
+function login() {
 	let login = new Promise((resolve,reject)=>{
-
 		request(server+'/login',function(err,res,body){
 			if (!err && res.statusCode == 200) {
 				resolve(eval(body));
@@ -263,11 +249,10 @@ function login(username,password) {
 }
 function getToken(uuid,password) {
 	let a = new Promise((resolve,reject)=>{
-
 		request.get(server+'/token',{
 			'auth': {
 			    'user': uuid,
-			    'pass': '123456',
+			    'pass': password,
 			    'sendImmediately': false
 			  }
 		},function(err,res,body) {
@@ -280,7 +265,26 @@ function getToken(uuid,password) {
 	});
 	return a;
 }
-
+function getAllUser() {
+	var promise = new Promise((resolve,reject)=>{
+		var options = {
+			method: 'GET',
+			url: server+'/users',
+			headers: {
+				Authorization: user.type+' '+user.token
+			}
+		};
+		function callback (err,res,body) {
+			if (!err && res.statusCode == 200) {
+				resolve(JSON.parse(body));
+			}else {
+				reject(err)
+			}
+		}
+		request(options,callback);
+	});
+	return promise
+}
 function getFile(uuid) {
 	var file = new Promise((resolve,reject)=>{
 		request
@@ -296,7 +300,6 @@ function getFile(uuid) {
 	});
 	return file;
 }
-
 function getFiles() {
 	var files = new Promise((resolve,reject)=>{ 
 			var options = {
@@ -307,7 +310,6 @@ function getFiles() {
 				}
 
 			};
-
 			function callback (err,res,body) {
 				if (!err && res.statusCode == 200) {
 					resolve(JSON.parse(body));
@@ -315,12 +317,28 @@ function getFiles() {
 					reject(err)
 				}
 			}
-
 			request(options,callback);
 	});
 	return files;
 }
-
+function getChildren(selectItem) {
+	// let uuid = selectItem.uuid;
+	// let children = [];
+	// console.log(map);
+	// console.log(map.get(uuid));
+	// children = map.get(uuid).children.map((item=>{
+	// 	return Object.assign({},item,{checked:false});
+	// }))
+	// console.log(children);
+}
+function getPath(obj) {
+	path.unshift({key:obj.name,value:obj});
+	if (obj.parent == undefined) {
+		path.unshift({key:'',value:{}});
+	}else {
+		getPath(obj.parent);
+	}
+}
 function getTree(f) {
 	let files = f.map((item)=>{
 		return {
@@ -330,16 +348,16 @@ function getTree(f) {
 			children: item.children
 		}
 	});
-	// console.log(files);
 	let tree = files.map((node,index)=>{
 		node.parent = files.find((item1)=>{return (item1.uuid == node.parent)});
 		node.children = files.filter((item2)=>{return (item2.parent == node.uuid)});
-		map.set(node.uuid,node);
 		return node
+	});
+	tree.forEach((item)=>{
+		map.set(item.uuid,item);
 	});
 	return tree;
 }
-
 function deleteFile(obj) {
 	var deleteF = new Promise((resolve,reject)=>{
 			var options = {
@@ -369,7 +387,6 @@ function deleteFile(obj) {
 	});
 	return deleteF;
 }
-
 function rename(uuid,name,oldName) {
 	let rename = new Promise((resolve,reject)=>{
 		// request
@@ -410,7 +427,6 @@ function rename(uuid,name,oldName) {
 	});
 	return rename;
 }
-
 function download(item) {
 	var download = new Promise((resolve,reject)=>{
 			var body = 0;
@@ -458,7 +474,6 @@ function download(item) {
 	})
 	return download;
 }
-
 function modifyData(file,uuid) {
 	//modify allfiles
 		for (let item of allFiles) {
@@ -488,7 +503,6 @@ function modifyData(file,uuid) {
 		}
 		mainWindow.webContents.send('uploadSuccess',file,children)
 }
-	
 function modifyFolder(name,dir,folderuuid) {
 	for (let item of allFiles) {
 		if (item.uuid == dir.uuid) {
@@ -536,8 +550,6 @@ function modifyFolder(name,dir,folderuuid) {
 	console.log(children)
 	mainWindow.webContents.send('uploadSuccess',folder,children)
 }
-
-
 
 // function setGlobalShortcuts() {
 //     globalShortcut.unregisterAll();

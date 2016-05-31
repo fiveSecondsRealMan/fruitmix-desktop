@@ -1,27 +1,17 @@
 const defaultDirectory = {
 	state: 'READY', // READY, BUSY, REJECTED, ERRO
-
 	directory: {},
 	children:[],
 	parent: [],
 	path:[],
 	tree:[],
-
 	selectAll:false, 
 	position:[],
 	menu:{show:false,objArr:[]},
 	detail:[],
 	dialogOfFolder: false,
-
 	upload:[],
 	dowload: [],
-
-	dialogOfFolder: false,
-	snackbar: '',
-
-
-	
-
 }
 
 const directory = (state=defaultDirectory,action)=> {
@@ -49,9 +39,14 @@ const directory = (state=defaultDirectory,action)=> {
 				break;
 			}
 			return Object.assign({},state,{children:newState,selectAll:allSelected})
+		case 'CANCEL_SELECT':
+			let children = state.children.map((item,index)=>{
+				return Object.assign({},item,{checked:false});
+			});
+			return Object.assign({},state,{children:children,selectAll:false});
 		case 'SELECT_ALL_CHILDREN':
 			//setSelect
-			let children = state.children.map((item,index)=> {
+			var children = state.children.map((item,index)=> {
 				return state.selectAll?Object.assign({},item,{checked:false}):Object.assign({},item,{checked:true});
 			});
 			return Object.assign({},state,{children:children,selectAll:!state.selectAll});

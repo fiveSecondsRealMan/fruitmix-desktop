@@ -20,6 +20,12 @@ var actions = {
 		}
 	},
 
+	loginFailed() {
+		return {
+			type: 'REJECTED'
+		}
+	},
+
 	navToggle() {
 		return {
 			type: 'NAV_MENU_TOGGLE' 
@@ -60,6 +66,12 @@ var actions = {
 	selectAllChildren() {
 		return {
 			type: 'SELECT_ALL_CHILDREN',
+		}
+	},
+
+	cancelSelect() {
+		return {
+			type: 'CANCEL_SELECT',
 		}
 	},
 

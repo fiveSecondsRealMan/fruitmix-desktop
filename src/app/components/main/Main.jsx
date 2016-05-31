@@ -47,33 +47,25 @@ class Main extends Component {
 		ipc.send('getRootData');
 		this.props.dispatch(Action.filesLoading());
 		ipc.on('receive',function (err,dir,children,parent,path) {
-			console.log('dir');
-			console.log(dir);
-			console.log('children');
-			console.log(children);
-			console.log('parent');
-			console.log(parent);
-			console.log('path');
-			console.log(path);
 			_this.props.dispatch(Action.setDirctory(dir,children,parent,path));
 		});
 		ipc.on('setTree',(err,tree)=>{
 			this.props.dispatch(Action.setTree(tree));
 		});
-		ipc.on('receiveFile',(data)=>{
+		ipc.on('receiveFile',(err,data)=>{
 			console.log(data);
 		});
 
-		ipc.on('refresh',(data)=>{
+		ipc.on('refresh',(err,data)=>{
 			console.log('refresh')
 			console.log(data);
 		});
 
-		ipc.on('sendMessage',(data)=>{
+		ipc.on('sendMessage',(err,data)=>{
 			console.log(data);
 		});
 
-		ipc.on('uploadSuccess',(file,children)=>{
+		ipc.on('uploadSuccess',(err,file,children)=>{
 			console.log('uploadSuccess');
 			console.log(file);
 			console.log(children);
@@ -83,21 +75,16 @@ class Main extends Component {
 			}
 		});
 
-		ipc.on('refreshStatusOfUpload',(file,status)=>{
+		ipc.on('refreshStatusOfUpload',(err,file,status)=>{
 			this.props.dispatch(Action.refreshStatusOfUpload(file,status));
 		});
 
-		ipc.on('refreshStatusOfDownload',(file,status)=>{
+		ipc.on('refreshStatusOfDownload',(err,file,status)=>{
 			this.props.dispatch(Action.refreshStatusOfDownload(file,status));
 		})
 
-		ipc.on('deleteSuccess',(obj,children,dir)=>{
-			console.log('deleteSuccess');
-			console.log(obj);
-			console.log(children);
-			console.log(dir);
+		ipc.on('deleteSuccess',(err,obj,children,dir)=>{
 			if (dir.uuid == this.props.data.directory.uuid) {
-				console.log('enter');
 				this.props.dispatch(Action.refreshDir(children));
 			}
 		});
@@ -201,6 +188,7 @@ class Main extends Component {
 	}
 
 	mouseUp() {
+		if (this.props.multiple.multiple.isShow == true) {
 		let mul = this.props.multiple.multiple;
  			let height = Math.abs(mul.top-mul.height);;
  			let part = Math.ceil(height/51);
@@ -251,11 +239,9 @@ class Main extends Component {
  					continue;	
  				}
  			}
-
-
 			var num = [];
 			var dis = this.props.data.multiple;
-		if (this.props.multiple.multiple.isShow == true) {
+
 			this.props.dispatch(Action.mouseUp());
 		}
 	}

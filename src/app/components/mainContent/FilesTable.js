@@ -163,9 +163,6 @@ class AllFilesTable extends Component {
 			}
 		}
 		return 'file'
-
-
-		
 	}
 }
 

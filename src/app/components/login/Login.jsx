@@ -38,10 +38,14 @@ class Index extends React.Component {
 	}
 
 	componentDidMount() {
-		ipc.on('loggedin',(user)=>{
+		ipc.on('loggedin',(err,user,allUser)=>{
+			console.log(allUser);
 			this.props.dispatch(Login.login(user));
-			// ipc.send('getFile','3e04af9e-4148-45ad-a60d-fbbe32d000f7');
 		});
+
+		ipc.on('loginFailed',()=>{
+			this.props.dispatch(Login.loginFailed());
+		})
 	}
 
 	submit() {
@@ -54,7 +58,7 @@ class Index extends React.Component {
 		// 		setTimeout( () => {
 		// 	this.props.dispatch(Login.login());
 		// },2);
-		ipc.send('login','jowbba','jowaab');
+		ipc.send('login','333333','333333');
 	}
 
 	render() {
